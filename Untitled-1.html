@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERVIYA - Servicios Completos para el Hogar</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Landing Page (Usuarios no autenticados) -->
+    <div id="landing-page" class="landing-page">
+        <!-- Header Landing -->
+        <header class="header-landing">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <div class="logo-icon">
+                            <i data-lucide="home"></i>
+                            <div class="service-dots">
+                                <div class="dot"><i data-lucide="droplets"></i></div>
+                                <div class="dot"><i data-lucide="zap"></i></div>
+                                <div class="dot"><i data-lucide="flame"></i></div>
+                                <div class="dot"><i data-lucide="hammer"></i></div>
+                                <div class="dot"><i data-lucide="paintbrush"></i></div>
+                            </div>
+                        </div>
+                        <div class="logo-text">
+                            <h1>SERVIYA</h1>
+                            <p>Servicios Completos para el Hogar</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="showLoginForm()">
+                            <i data-lucide="log-in"></i>
+                            Iniciar Sesión
+                        </button>
+                        <button class="btn btn-success">
+                            <i data-lucide="phone"></i>
+                            +57 300 123 4567
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-card">
+                    <div class="hero-content">
+                        <h1>Servicios Técnicos Domiciliarios</h1>
+                        <p>Soluciones completas para su hogar. Desde plomería y electricidad hasta carpintería, pintura, jardinería y más. ✨ Técnicos certificados disponibles 24/7.</p>
+                        <div class="hero-actions">
+                            <button class="btn btn-large btn-white" onclick="showLoginForm()">
+                                <i data-lucide="log-in"></i>
+                                Agendar Cita Ahora
+                            </button>
+                            <div class="phone-badge">
+                                <i data-lucide="phone"></i>
+                                <span>+57 300 123 4567</span>
+                            </div>
+                        </div>
+                        <div class="emergency-badge">
+                            <i data-lucide="alert-triangle"></i>
+                            Emergencias 24/7 Disponibles
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i data-lucide="users"></i></div>
+                        <h3>5,000+</h3>
+                        <p>Clientes Satisfechos</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i data-lucide="star"></i></div>
+                        <h3>4.9/5</h3>
+                        <p>Calificación Promedio</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i data-lucide="award"></i></div>
+                        <h3>10+</h3>
+                        <p>Años de Experiencia</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i data-lucide="wrench"></i></div>
+                        <h3>24/7</h3>
+                        <p>Servicio de Emergencia</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Nuestros Servicios</h2>
+                    <p>Ofrecemos una amplia gama de servicios técnicos para mantener su hogar en perfectas condiciones</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card service-water">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="droplets"></i></div>
+                            <div class="service-info">
+                                <h3>Plomería y Agua</h3>
+                                <p>Fugas, destapados, instalaciones de sanitarios y grifos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card service-electric">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="zap"></i></div>
+                            <div class="service-info">
+                                <h3>Servicios Eléctricos</h3>
+                                <p>Instalaciones eléctricas, cortocircuitos y luminarias</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card service-gas">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="flame"></i></div>
+                            <div class="service-info">
+                                <h3>Servicios de Gas</h3>
+                                <p>Instalaciones seguras, detección de fugas, calentadores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card service-carpentry">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="hammer"></i></div>
+                            <div class="service-info">
+                                <h3>Carpintería</h3>
+                                <p>Cortinas, estantes, muebles, closets y organizadores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card service-paint">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="paintbrush"></i></div>
+                            <div class="service-info">
+                                <h3>Pintura y Acabados</h3>
+                                <p>Pintura interior/exterior, acabados decorativos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card service-air">
+                        <div class="service-header">
+                            <div class="service-icon"><i data-lucide="wind"></i></div>
+                            <div class="service-info">
+                                <h3>Aire Acondicionado</h3>
+                                <p>Instalación, mantenimiento y reparación de A/C</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-footer">
+                    <button class="btn btn-large btn-primary" onclick="showLoginForm()">
+                        <i data-lucide="log-in"></i>
+                        Ver Todos los Servicios y Agendar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>¿Por qué elegir SERVIYA?</h2>
+                    <p>Comprometidos con la excelencia y la satisfacción del cliente</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="shield"></i></div>
+                        <h3>Técnicos Certificados</h3>
+                        <p>Personal especializado y certificado en cada área de trabajo</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="clock"></i></div>
+                        <h3>Servicio 24/7</h3>
+                        <p>Disponibles para emergencias las 24 horas del día</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="check-circle"></i></div>
+                        <h3>Garantía Total</h3>
+                        <p>Garantizamos la calidad de todos nuestros servicios</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="wrench"></i></div>
+                        <h3>Herramientas Pro</h3>
+                        <p>Equipos modernos y especializados para cada trabajo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>¿Listo para agendar tu servicio?</h2>
+                    <p>Únete a miles de clientes satisfechos. Regístrate ahora y agenda tu primera cita.</p>
+                    <button class="btn btn-large btn-white" onclick="showLoginForm()">
+                        <i data-lucide="log-in"></i>
+                        Crear Cuenta y Agendar Ahora
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>SERVIYA</h3>
+                        <p>Tu aliado de confianza para todos los servicios del hogar. Calidad, confiabilidad y excelencia en cada trabajo.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Contacto</h4>
+                        <div class="contact-item">
+                            <i data-lucide="phone"></i>
+                            <span>+57 300 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <i data-lucide="clock"></i>
+                            <span>Lun-Vie: 8AM-6PM</span>
+                        </div>
+                        <div class="contact-item">
+                            <i data-lucide="alert-triangle"></i>
+                            <span>Emergencias: 24/7</span>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Servicios</h4>
+                        <div class="services-list">
+                            <span>• Plomería</span>
+                            <span>• Electricidad</span>
+                            <span>• Gas</span>
+                            <span>• Carpintería</span>
+                            <span>• Pintura</span>
+                            <span>• Aire A/C</span>
+                            <span>• Cerrajería</span>
+                            <span>• Limpieza</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>© 2024 SERVIYA. Todos los derechos reservados.</p>
+                    <p>✨ Soluciones completas para su hogar</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login/Register Form -->
+    <div id="login-form" class="login-overlay" style="display: none;">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-icon">
+                        <i data-lucide="log-in"></i>
+                    </div>
+                    <h2>SERVIYA</h2>
+                    <p>Accede a tu cuenta para gestionar tus servicios</p>
+                </div>
+                
+                <div class="login-tabs">
+                    <button class="tab-btn active" onclick="switchTab('login')">
+                        <i data-lucide="log-in"></i>
+                        Iniciar Sesión
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('register')">
+                        <i data-lucide="user-plus"></i>
+                        Registrarse
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('admin')">
+                        <i data-lucide="shield"></i>
+                        Administrador
+                    </button>
+                </div>
+
+                <!-- Login Tab -->
+                <div id="login-tab" class="tab-content active">
+                    <form id="login-form-element" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <div class="input-group">
+                                <i data-lucide="mail"></i>
+                                <input type="email" id="login-email" placeholder="tu@email.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Contraseña</label>
+                            <div class="input-group">
+                                <i data-lucide="lock"></i>
+                                <input type="password" id="login-password" placeholder="••••••••" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('login-password')">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="log-in"></i>
+                            Iniciar Sesión
+                        </button>
+                    </form>
+                    
+                    <div class="auth-divider">
+                        <span>O continúa con</span>
+                    </div>
+                    
+                    <button class="btn btn-outline btn-full" onclick="googleLogin()">
+                        <i data-lucide="chrome"></i>
+                        Continuar con Google
+                    </button>
+                </div>
+
+                <!-- Register Tab -->
+                <div id="register-tab" class="tab-content">
+                    <form id="register-form-element" class="auth-form">
+                        <div class="form-group">
+                            <label for="register-name">Nombre Completo</label>
+                            <input type="text" id="register-name" placeholder="Juan Pérez" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <div class="input-group">
+                                <i data-lucide="mail"></i>
+                                <input type="email" id="register-email" placeholder="tu@email.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Contraseña</label>
+                            <div class="input-group">
+                                <i data-lucide="lock"></i>
+                                <input type="password" id="register-password" placeholder="••••••••" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('register-password')">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Confirmar Contraseña</label>
+                            <div class="input-group">
+                                <i data-lucide="lock"></i>
+                                <input type="password" id="register-confirm-password" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="user-plus"></i>
+                            Crear Cuenta
+                        </button>
+                    </form>
+                    
+                    <div class="auth-divider">
+                        <span>O regístrate con</span>
+                    </div>
+                    
+                    <button class="btn btn-outline btn-full" onclick="googleLogin()">
+                        <i data-lucide="chrome"></i>
+                        Registrarse con Google
+                    </button>
+                </div>
+
+                <!-- Admin Tab -->
+                <div id="admin-tab" class="tab-content">
+                    <form id="admin-form-element" class="auth-form">
+                        <div class="form-group">
+                            <label for="admin-email">Email Administrador</label>
+                            <div class="input-group">
+                                <i data-lucide="shield"></i>
+                                <input type="email" id="admin-email" placeholder="admin@serviya.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-password">Contraseña</label>
+                            <div class="input-group">
+                                <i data-lucide="lock"></i>
+                                <input type="password" id="admin-password" placeholder="••••••••" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('admin-password')">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="shield"></i>
+                            Acceso Administrador
+                        </button>
+                    </form>
+                    
+                    <div class="admin-info">
+                        <p><strong>Credenciales por defecto:</strong></p>
+                        <p>Email: admin@serviya.com</p>
+                        <p>Contraseña: admin123</p>
+                    </div>
+                </div>
+
+                <button class="close-btn" onclick="hideLoginForm()">
+                    <i data-lucide="x"></i>
+                </button>
+
+                <div class="auth-footer">
+                    <p>Al continuar, aceptas nuestros términos de servicio y política de privacidad</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <div class="admin-logo-icon">
+                            <i data-lucide="shield"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>SERVIYA ADMIN</h1>
+                            <p>Panel de Administración</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <div class="admin-info">
+                            <div class="admin-badge">
+                                <i data-lucide="shield-check"></i>
+                                <span id="admin-name">Administrador</span>
+                            </div>
+                            <button class="btn btn-outline btn-small" onclick="adminLogout()">
+                                <i data-lucide="log-out"></i>
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Content -->
+        <main class="admin-content">
+            <div class="container">
+                <!-- Admin Tabs Navigation -->
+                <div class="admin-tabs-nav">
+                    <button class="admin-tab-btn active" onclick="switchAdminTab('dashboard')">
+                        <i data-lucide="pie-chart"></i>
+                        Dashboard
+                    </button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('users')">
+                        <i data-lucide="users"></i>
+                        Usuarios
+                        <span id="users-count-badge" class="count-badge">0</span>
+                    </button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('appointments')">
+                        <i data-lucide="calendar"></i>
+                        Todas las Citas
+                        <span id="appointments-count-badge" class="count-badge">0</span>
+                    </button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('services')">
+                        <i data-lucide="wrench"></i>
+                        Servicios
+                    </button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('reports')">
+                        <i data-lucide="file-text"></i>
+                        Reportes
+                    </button>
+                </div>
+
+                <!-- Admin Tab Contents -->
+                <div class="admin-tab-contents">
+                    <!-- Dashboard Tab -->
+                    <div id="admin-dashboard-tab" class="admin-tab-content active">
+                        <div class="dashboard-header">
+                            <h2>Dashboard Principal</h2>
+                            <p>Vista general del sistema SERVIYA</p>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="admin-stats-grid">
+                            <div class="admin-stat-card stat-users">
+                                <div class="stat-icon">
+                                    <i data-lucide="users"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Usuarios Registrados</h3>
+                                    <p class="stat-number" id="total-users">0</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card stat-appointments">
+                                <div class="stat-icon">
+                                    <i data-lucide="calendar"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Total Citas</h3>
+                                    <p class="stat-number" id="total-appointments">0</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card stat-urgent">
+                                <div class="stat-icon">
+                                    <i data-lucide="alert-triangle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Emergencias Activas</h3>
+                                    <p class="stat-number" id="urgent-appointments">0</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card stat-completed">
+                                <div class="stat-icon">
+                                    <i data-lucide="check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Completadas</h3>
+                                    <p class="stat-number" id="completed-appointments">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Services Stats -->
+                        <div class="services-stats">
+                            <h3>Servicios Más Solicitados</h3>
+                            <div class="services-stats-grid" id="services-stats-grid">
+                                <!-- Se llenará dinámicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="recent-activity">
+                            <h3>Actividad Reciente</h3>
+                            <div class="activity-list" id="recent-activity-list">
+                                <!-- Se llenará dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Tab -->
+                    <div id="admin-users-tab" class="admin-tab-content">
+                        <div class="users-header">
+                            <h2>Gestión de Usuarios</h2>
+                            <div class="users-actions">
+                                <button class="btn btn-primary" onclick="showAddUserModal()">
+                                    <i data-lucide="user-plus"></i>
+                                    Agregar Usuario
+                                </button>
+                                <button class="btn btn-outline" onclick="exportUsers()">
+                                    <i data-lucide="download"></i>
+                                    Exportar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="users-table-container">
+                            <table class="admin-table" id="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Fecha Registro</th>
+                                        <th>Citas</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- All Appointments Tab -->
+                    <div id="admin-appointments-tab" class="admin-tab-content">
+                        <div class="appointments-header">
+                            <h2>Todas las Citas del Sistema</h2>
+                            <div class="appointments-filters">
+                                <select id="status-filter" onchange="filterAppointments()">
+                                    <option value="">Todos los estados</option>
+                                    <option value="programada">Programadas</option>
+                                    <option value="urgente">Emergencias</option>
+                                    <option value="completada">Completadas</option>
+                                    <option value="cancelada">Canceladas</option>
+                                </select>
+                                <select id="service-filter" onchange="filterAppointments()">
+                                    <option value="">Todos los servicios</option>
+                                    <option value="agua">Plomería</option>
+                                    <option value="luz">Electricidad</option>
+                                    <option value="gas">Gas</option>
+                                    <option value="carpinteria">Carpintería</option>
+                                    <option value="pintura">Pintura</option>
+                                    <option value="aire">Aire A/C</option>
+                                    <option value="cerrajeria">Cerrajería</option>
+                                    <option value="electrodomesticos">Electrodomésticos</option>
+                                    <option value="jardineria">Jardinería</option>
+                                    <option value="limpieza">Limpieza</option>
+                                </select>
+                                <button class="btn btn-outline" onclick="exportAppointments()">
+                                    <i data-lucide="download"></i>
+                                    Exportar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="admin-appointments-list" id="admin-appointments-list">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Services Tab -->
+                    <div id="admin-services-tab" class="admin-tab-content">
+                        <div class="services-header">
+                            <h2>Gestión de Servicios</h2>
+                            <p>Configure los servicios y tipos de problemas disponibles</p>
+                        </div>
+
+                        <div class="services-management">
+                            <div class="service-cards-grid">
+                                <div class="service-management-card">
+                                    <div class="service-icon service-water-bg">
+                                        <i data-lucide="droplets"></i>
+                                    </div>
+                                    <h3>Plomería y Agua</h3>
+                                    <p>10 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="agua-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="service-management-card">
+                                    <div class="service-icon service-electric-bg">
+                                        <i data-lucide="zap"></i>
+                                    </div>
+                                    <h3>Electricidad</h3>
+                                    <p>10 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="luz-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="service-management-card">
+                                    <div class="service-icon service-gas-bg">
+                                        <i data-lucide="flame"></i>
+                                    </div>
+                                    <h3>Gas</h3>
+                                    <p>8 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="gas-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="service-management-card">
+                                    <div class="service-icon service-carpentry-bg">
+                                        <i data-lucide="hammer"></i>
+                                    </div>
+                                    <h3>Carpintería</h3>
+                                    <p>8 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="carpinteria-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="service-management-card">
+                                    <div class="service-icon service-paint-bg">
+                                        <i data-lucide="paintbrush"></i>
+                                    </div>
+                                    <h3>Pintura</h3>
+                                    <p>8 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="pintura-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="service-management-card">
+                                    <div class="service-icon service-air-bg">
+                                        <i data-lucide="wind"></i>
+                                    </div>
+                                    <h3>Aire Acondicionado</h3>
+                                    <p>7 tipos de problemas</p>
+                                    <div class="service-stats">
+                                        <span class="stat-item">
+                                            <i data-lucide="calendar"></i>
+                                            <span id="aire-count">0</span> citas
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reports Tab -->
+                    <div id="admin-reports-tab" class="admin-tab-content">
+                        <div class="reports-header">
+                            <h2>Reportes y Estadísticas</h2>
+                            <div class="reports-actions">
+                                <button class="btn btn-primary" onclick="generateReport()">
+                                    <i data-lucide="file-text"></i>
+                                    Generar Reporte
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="reports-grid">
+                            <div class="report-card">
+                                <h3>Resumen Mensual</h3>
+                                <div class="report-stats">
+                                    <div class="report-stat">
+                                        <span class="label">Nuevos usuarios:</span>
+                                        <span class="value" id="monthly-users">0</span>
+                                    </div>
+                                    <div class="report-stat">
+                                        <span class="label">Citas completadas:</span>
+                                        <span class="value" id="monthly-completed">0</span>
+                                    </div>
+                                    <div class="report-stat">
+                                        <span class="label">Emergencias:</span>
+                                        <span class="value" id="monthly-emergencies">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="report-card">
+                                <h3>Servicios Populares</h3>
+                                <div class="popular-services" id="popular-services-list">
+                                    <!-- Se llenará dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Main Application (Usuarios autenticados) -->
+    <div id="main-app" class="main-app" style="display: none;">
+        <!-- Header App -->
+        <header class="header-app">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <div class="logo-icon">
+                            <i data-lucide="home"></i>
+                            <div class="service-dots">
+                                <div class="dot"><i data-lucide="droplets"></i></div>
+                                <div class="dot"><i data-lucide="zap"></i></div>
+                                <div class="dot"><i data-lucide="flame"></i></div>
+                                <div class="dot"><i data-lucide="hammer"></i></div>
+                                <div class="dot"><i data-lucide="paintbrush"></i></div>
+                            </div>
+                        </div>
+                        <div class="logo-text">
+                            <h1>SERVIYA</h1>
+                            <p>Servicios Completos para el Hogar</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <div class="user-info">
+                            <div class="user-badge">
+                                <i data-lucide="user"></i>
+                                <span id="user-name">Usuario</span>
+                            </div>
+                            <button class="btn btn-outline btn-small" onclick="logout()">
+                                <i data-lucide="log-out"></i>
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                        <button class="btn btn-success">
+                            <i data-lucide="phone"></i>
+                            +57 300 123 4567
+                        </button>
+                        <div class="emergency-badge">
+                            <i data-lucide="alert-triangle"></i>
+                            Emergencias 24/7
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Tabs Navigation -->
+                <div class="tabs-nav">
+                    <button class="tab-btn active" onclick="switchMainTab('info')">
+                        <i data-lucide="info"></i>
+                        Información
+                    </button>
+                    <button class="tab-btn" onclick="switchMainTab('schedule')">
+                        <i data-lucide="calendar"></i>
+                        Agendar Cita
+                    </button>
+                    <button class="tab-btn" onclick="switchMainTab('appointments')">
+                        <i data-lucide="list"></i>
+                        Mis Citas
+                        <span id="appointments-badge" class="count-badge" style="display: none;">0</span>
+                    </button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tab-contents">
+                    <!-- Info Tab -->
+                    <div id="info-tab" class="tab-content active">
+                        <div class="info-content">
+                            <div class="welcome-card">
+                                <div class="welcome-header">
+                                    <h2>Bienvenido a SERVIYA</h2>
+                                    <p>Tu aliado de confianza para todos los servicios del hogar</p>
+                                </div>
+                                <div class="services-overview">
+                                    <div class="service-item">
+                                        <div class="service-icon service-water-bg"><i data-lucide="droplets"></i></div>
+                                        <div class="service-details">
+                                            <h3>Plomería y Agua</h3>
+                                            <p>Fugas, destapados, instalaciones</p>
+                                        </div>
+                                    </div>
+                                    <div class="service-item">
+                                        <div class="service-icon service-electric-bg"><i data-lucide="zap"></i></div>
+                                        <div class="service-details">
+                                            <h3>Electricidad</h3>
+                                            <p>Instalaciones, reparaciones, tableros</p>
+                                        </div>
+                                    </div>
+                                    <div class="service-item">
+                                        <div class="service-icon service-gas-bg"><i data-lucide="flame"></i></div>
+                                        <div class="service-details">
+                                            <h3>Gas</h3>
+                                            <p>Instalaciones, detección de fugas</p>
+                                        </div>
+                                    </div>
+                                    <div class="service-item">
+                                        <div class="service-icon service-carpentry-bg"><i data-lucide="hammer"></i></div>
+                                        <div class="service-details">
+                                            <h3>Carpintería</h3>
+                                            <p>Muebles, estantes, cortinas</p>
+                                        </div>
+                                    </div>
+                                    <div class="service-item">
+                                        <div class="service-icon service-paint-bg"><i data-lucide="paintbrush"></i></div>
+                                        <div class="service-details">
+                                            <h3>Pintura</h3>
+                                            <p>Interior, exterior, decorativo</p>
+                                        </div>
+                                    </div>
+                                    <div class="service-item">
+                                        <div class="service-icon service-air-bg"><i data-lucide="wind"></i></div>
+                                        <div class="service-details">
+                                            <h3>Aire Acondicionado</h3>
+                                            <p>Instalación, mantenimiento</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Tab -->
+                    <div id="schedule-tab" class="tab-content">
+                        <div class="schedule-content">
+                            <div class="appointment-form-card">
+                                <div class="form-header">
+                                    <h2>Agendar Nueva Cita</h2>
+                                    <p>Complete el formulario para solicitar un servicio técnico</p>
+                                </div>
+                                
+                                <form id="appointment-form" class="appointment-form">
+                                    <!-- Información Personal -->
+                                    <div class="form-section">
+                                        <h3>Información Personal</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="client-name">Nombre Completo *</label>
+                                                <input type="text" id="client-name" placeholder="Ingrese su nombre completo" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="client-phone">Teléfono *</label>
+                                                <input type="tel" id="client-phone" placeholder="Ejemplo: 300 123 4567" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="client-email">Email (Opcional)</label>
+                                                <input type="email" id="client-email" placeholder="correo@ejemplo.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="client-address">Dirección *</label>
+                                                <input type="text" id="client-address" placeholder="Dirección completa del servicio" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tipo de Servicio -->
+                                    <div class="form-section">
+                                        <h3>Tipo de Servicio</h3>
+                                        <div class="service-selection">
+                                            <div class="service-option" data-service="agua">
+                                                <div class="service-icon service-water-bg"><i data-lucide="droplets"></i></div>
+                                                <span>Plomería y Agua</span>
+                                            </div>
+                                            <div class="service-option" data-service="luz">
+                                                <div class="service-icon service-electric-bg"><i data-lucide="zap"></i></div>
+                                                <span>Electricidad</span>
+                                            </div>
+                                            <div class="service-option" data-service="gas">
+                                                <div class="service-icon service-gas-bg"><i data-lucide="flame"></i></div>
+                                                <span>Gas</span>
+                                            </div>
+                                            <div class="service-option" data-service="carpinteria">
+                                                <div class="service-icon service-carpentry-bg"><i data-lucide="hammer"></i></div>
+                                                <span>Carpintería</span>
+                                            </div>
+                                            <div class="service-option" data-service="pintura">
+                                                <div class="service-icon service-paint-bg"><i data-lucide="paintbrush"></i></div>
+                                                <span>Pintura</span>
+                                            </div>
+                                            <div class="service-option" data-service="aire">
+                                                <div class="service-icon service-air-bg"><i data-lucide="wind"></i></div>
+                                                <span>Aire A/C</span>
+                                            </div>
+                                            <div class="service-option" data-service="cerrajeria">
+                                                <div class="service-icon service-locksmith-bg"><i data-lucide="key"></i></div>
+                                                <span>Cerrajería</span>
+                                            </div>
+                                            <div class="service-option" data-service="electrodomesticos">
+                                                <div class="service-icon service-appliances-bg"><i data-lucide="refrigerator"></i></div>
+                                                <span>Electrodomésticos</span>
+                                            </div>
+                                            <div class="service-option" data-service="jardineria">
+                                                <div class="service-icon service-garden-bg"><i data-lucide="tree-pine"></i></div>
+                                                <span>Jardinería</span>
+                                            </div>
+                                            <div class="service-option" data-service="limpieza">
+                                                <div class="service-icon service-cleaning-bg"><i data-lucide="sparkles"></i></div>
+                                                <span>Limpieza</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tipo de Problema -->
+                                    <div class="form-section" id="problem-section" style="display: none;">
+                                        <h3>Tipo de Problema</h3>
+                                        <select id="problem-type" class="form-select">
+                                            <option value="">Seleccione el tipo de problema</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Descripción -->
+                                    <div class="form-section">
+                                        <h3>Descripción del Problema</h3>
+                                        <textarea id="problem-description" placeholder="Describa detalladamente el problema o servicio requerido" rows="4"></textarea>
+                                    </div>
+
+                                    <!-- Fecha y Hora -->
+                                    <div class="form-section">
+                                        <h3>Fecha y Hora</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="appointment-date">Fecha Preferida *</label>
+                                                <input type="date" id="appointment-date" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="appointment-time">Hora Preferida *</label>
+                                                <select id="appointment-time" required>
+                                                    <option value="">Seleccione una hora</option>
+                                                    <option value="08:00">08:00 AM</option>
+                                                    <option value="09:00">09:00 AM</option>
+                                                    <option value="10:00">10:00 AM</option>
+                                                    <option value="11:00">11:00 AM</option>
+                                                    <option value="14:00">02:00 PM</option>
+                                                    <option value="15:00">03:00 PM</option>
+                                                    <option value="16:00">04:00 PM</option>
+                                                    <option value="17:00">05:00 PM</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <div class="form-actions">
+                                        <button type="button" class="btn btn-emergency" onclick="scheduleEmergency()">
+                                            <i data-lucide="alert-triangle"></i>
+                                            Es una Emergencia
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i data-lucide="calendar-plus"></i>
+                                            Agendar Cita
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointments Tab -->
+                    <div id="appointments-tab" class="tab-content">
+                        <div class="appointments-content">
+                            <!-- Summary Cards -->
+                            <div id="summary-cards" class="summary-cards" style="display: none;">
+                                <div class="summary-card summary-scheduled">
+                                    <div class="summary-header">
+                                        <div class="summary-icon"><i data-lucide="calendar"></i></div>
+                                        <h3>Programadas</h3>
+                                    </div>
+                                    <p class="summary-count" id="scheduled-count">0</p>
+                                </div>
+                                <div class="summary-card summary-urgent">
+                                    <div class="summary-header">
+                                        <div class="summary-icon"><i data-lucide="alert-triangle"></i></div>
+                                        <h3>Emergencias</h3>
+                                    </div>
+                                    <p class="summary-count" id="urgent-count">0</p>
+                                </div>
+                                <div class="summary-card summary-total">
+                                    <div class="summary-header">
+                                        <div class="summary-icon"><i data-lucide="list"></i></div>
+                                        <h3>Total</h3>
+                                    </div>
+                                    <p class="summary-count" id="total-count">0</p>
+                                </div>
+                            </div>
+
+                            <!-- Appointments List -->
+                            <div class="appointments-list">
+                                <div id="no-appointments" class="no-appointments">
+                                    <div class="no-appointments-icon">
+                                        <i data-lucide="calendar-x"></i>
+                                    </div>
+                                    <h3>No hay citas agendadas</h3>
+                                    <p>Agenda tu primera cita usando el formulario en la pestaña "Agendar Cita"</p>
+                                    <button class="btn btn-primary" onclick="switchMainTab('schedule')">
+                                        <i data-lucide="calendar-plus"></i>
+                                        Agendar Primera Cita
+                                    </button>
+                                </div>
+                                <div id="appointments-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer App -->
+        <footer class="footer-app">
+            <div class="container">
+                <div class="footer-content">
+                    <h3>SERVIYA</h3>
+                    <p>© 2024 SERVIYA. Todos los derechos reservados.</p>
+                    <p>✨ Soluciones completas para su hogar: Plomería, Electricidad, Carpintería, Pintura y más</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
