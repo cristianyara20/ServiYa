@@ -9,10 +9,16 @@ export async function middleware(request: NextRequest) {
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
   const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const isAdminPage = request.nextUrl.pathname.startsWith("/dashboard/admin");
 
   // Si no hay sesión y trata de entrar al dashboard → redirige al login
   if (!session && isDashboard) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
+  // Protección del panel admin
+  if (session && isAdminPage && session.user.email !== "pepitoperez132604@gmail.com") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Si hay sesión y trata de entrar al login → redirige al dashboard

@@ -41,6 +41,15 @@ export default function Navbar({ user }: { user: User | null }) {
     <span className="text-purple-400 text-sm">📩</span> PQRS
   </Link>
 
+  {user?.email === "pepitoperez132604@gmail.com" && (
+    <Link 
+      href="/dashboard/admin" 
+      className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-red-600 transition-colors"
+    >
+      <span className="text-red-500 text-sm">🛡️</span> Panel Admin
+    </Link>
+  )}
+
   <Link 
     href="/dashboard/chat" 
     className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-purple-600 transition-colors"

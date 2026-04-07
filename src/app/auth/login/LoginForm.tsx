@@ -29,7 +29,11 @@ export default function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
+    if (email === "pepitoperez132604@gmail.com") {
+      router.push("/dashboard/admin");
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   }
 
