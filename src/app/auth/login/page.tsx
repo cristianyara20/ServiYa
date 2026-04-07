@@ -14,15 +14,32 @@ export default function LoginPage() {
           <p className="text-neutral-400 mt-2 text-sm">Inicia sesión para continuar</p>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
           <LoginForm />
-          <div className="mt-4 text-center">
-            <Link
-              href="/auth/recuperar"
-              className="text-xs text-neutral-500 hover:text-orange-500 transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
+
+          <div className="mt-6 space-y-4 text-center">
+            {/* Enlace para Recuperar Contraseña */}
+            <div>
+              <Link
+                href="/auth/recuperar"
+                className="text-xs text-neutral-500 hover:text-orange-500 transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+
+            {/* Separador visual opcional */}
+            <div className="border-t border-neutral-800 pt-4">
+              <p className="text-sm text-neutral-400">
+                ¿No tienes una cuenta?{" "}
+                <Link
+                  href="/auth/register"
+                  className="text-orange-500 hover:text-orange-400 font-medium transition-colors underline underline-offset-4"
+                >
+                  Regístrate aquí
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
