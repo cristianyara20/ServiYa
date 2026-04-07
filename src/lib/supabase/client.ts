@@ -29,6 +29,10 @@ export function createBrowserSupabaseClient() {
       db: {
         schema: "gestion",
       },
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
     }
   );
 }

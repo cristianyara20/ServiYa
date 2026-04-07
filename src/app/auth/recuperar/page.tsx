@@ -14,9 +14,8 @@ export default function RecuperarPage() {
         setLoading(true);
         setMensaje("");
 
-        // CAMBIO CLAVE: Usamos una URL limpia. 
-        // Asegúrate de que http://localhost:3000/auth/confirmar esté en tu Dashboard de Supabase
-        const targetURL = `${window.location.origin}/auth/confirmar`;
+        // Apuntamos directo a actualizar-clave para evitar que se pierda la sesión
+        const targetURL = `${window.location.origin}/auth/actualizar-clave`;
 
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: targetURL,

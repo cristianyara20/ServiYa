@@ -5,9 +5,8 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
-
-    // 1. Si no hay código, fuera.
-    if (!code) return NextResponse.redirect(`${origin}/auth/login`)
+    const tokenHash = searchParams.get('token_hash')
+    const type = searchParams.get('type')
 
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -26,18 +25,17 @@ export async function GET(request: Request) {
         }
     )
 
-    // 2. Intentamos intercambiar el código por la sesión
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-    // 3. VERIFICACIÓN CRÍTICA: ¿Tenemos sesión ahora mismo?
-    const { data: { session } } = await supabase.auth.getSession()
-
-    // Si no hay error O si ya tenemos una sesión (porque se validó rápido), entramos.
-    if (!error || session) {
-        return NextResponse.redirect(`${origin}/auth/actualizar-clave`)
+    // Flujo con token_hash (recuperación de contraseña)
+    if (tokenHash && type) {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as any })
+        if (!error) return NextResponse.redirect(`${origin}/auth/actualizar-clave`)
     }
 
-    // 4. Si falló todo, al login con el detalle para saber qué pasó
-    console.error("Error de Auth:", error?.message)
+    // Flujo con code (magic link / OAuth)
+    if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (!error) return NextResponse.redirect(`${origin}/auth/actualizar-clave`)
+    }
+
     return NextResponse.redirect(`${origin}/auth/login?error=token-invalido`)
 }
