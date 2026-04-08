@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useCliente } from "@/hooks/useCliente";
 
 const servicios = [
   { id: 1, nombre: "Plomería y Agua", icono: "🔧" },
@@ -43,6 +44,7 @@ const subServicios: Record<number, { label: string; opciones: string[] }> = {
 export default function NuevaReservaPage() {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const { clienteId } = useCliente();
 
   const [servicioSeleccionado, setServicioSeleccionado] = useState<number | null>(null);
   const [subServicioSeleccionado, setSubServicioSeleccionado] = useState<string | null>(null);
@@ -64,52 +66,9 @@ export default function NuevaReservaPage() {
     setLoading(true);
 
     try {
-      // 1. Obtener usuario logueado
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      if (!clienteId) {
         setLoading(false);
-        return alert("No estás autenticado");
-      }
-
-      // 2. BUSCAR O CREAR CLIENTE (CORRECCIÓN DE ESQUEMA)
-      // Buscamos primero en el esquema gestion
-      let { data: cliente, error: errorCliente } = await supabase
-        .schema("gestion")
-        .from("clientes")
-        .select("id_cliente")
-        .eq("auth_id", user.id)
-        .maybeSingle();
-
-      if (errorCliente) throw errorCliente;
-
-      let idClienteFinal;
-
-      if (!cliente) {
-        // Si no existe en gestión, necesitamos su ID del esquema seguridad
-        const { data: usuarioSeg, error: errorSeg } = await supabase
-          .schema("seguridad")
-          .from("usuarios")
-          .select("id_usuario")
-          .eq("auth_id", user.id)
-          .single();
-
-        if (errorSeg || !usuarioSeg) throw new Error("No se encontró el perfil de usuario en seguridad.");
-
-        // Creamos el cliente en el esquema gestión
-        const { data: nuevoCliente, error: errorInsert } = await supabase
-          .schema("gestion")
-          .from("clientes")
-          .insert({
-            id_cliente: usuarioSeg.id_usuario,
-            auth_id: user.id
-          })
-          .select()
-          .single();
-
-        if (errorInsert) throw errorInsert;
-        idClienteFinal = nuevoCliente.id_cliente;
-      } else {
-        idClienteFinal = cliente.id_cliente;
+        return alert("Error: Perfil de cliente no encontrado o cargando");
       }
 
       // 3. INSERTAR RESERVA (CORRECCIÓN DE ESQUEMA)
@@ -117,7 +76,7 @@ export default function NuevaReservaPage() {
         .schema("gestion")
         .from("reservas")
         .insert({
-          id_cliente: idClienteFinal,
+          id_cliente: clienteId,
           id_prestador: 1, // ID por defecto para pruebas
           id_servicio: servicioSeleccionado,
           direccion: form.direccion,

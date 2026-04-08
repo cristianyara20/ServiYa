@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { CalificacionRepository } from "./calificacion.repository";
-import { CalificacionService } from "./calificaciones.service";
-import { CreateCalificacionSchema } from "./calificaciones.schema";
+import { CalificacionService } from "./calificacion.service";
+import { CreateCalificacionSchema } from "./calificacion.schema";
 
 const repo = new CalificacionRepository();
 const service = new CalificacionService(repo);

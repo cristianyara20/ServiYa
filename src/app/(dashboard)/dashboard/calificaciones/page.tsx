@@ -1,42 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { useReservas } from "@/hooks/useReservas";
 
 export default function CalificacionesPage() {
   const [rating, setRating] = useState(0);
-  const [reservas, setReservas] = useState<any[]>([]);
+  const { reservas, loading } = useReservas();
   const [citaSeleccionada, setCitaSeleccionada] = useState("");
-  const supabase = createBrowserSupabaseClient();
-
-  useEffect(() => {
-    const fetchReservas = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: cliente } = await supabase
-        .schema("gestion")
-        .from("clientes")
-        .select("id_cliente")
-        .eq("auth_id", user.id)
-        .maybeSingle();
-
-      if (cliente) {
-        const { data: reservasData } = await supabase
-          .schema("gestion")
-          .from("reservas")
-          .select("*, servicios(nombre_servicio)")
-          .eq("id_cliente", cliente.id_cliente)
-          .order("fecha_agenda", { ascending: false });
-
-        if (reservasData) {
-          setReservas(reservasData);
-        }
-      }
-    };
-
-    fetchReservas();
-  }, []);
 
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden flex items-center justify-center p-4">

@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { usePQRS } from "@/hooks/usePQRS";
 
 type EstadoType = "Abierto" | "En Proceso" | "Cerrado";
 type TipoType = "Peticion" | "Queja" | "Reclamo" | "Sugerencia";
@@ -27,41 +26,7 @@ const defaultPqrs: { id: number; tipo: TipoType; descripcion: string; cliente: n
 
 export default function PqrsPage() {
   const router = useRouter();
-  const [pqrs, setPqrs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createBrowserSupabaseClient();
-
-  useEffect(() => {
-    const fetchPqrs = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: cliente } = await supabase
-          .schema("gestion")
-          .from("clientes")
-          .select("id_cliente")
-          .eq("auth_id", user.id)
-          .maybeSingle();
-
-        if (cliente) {
-          const { data: pqrsData } = await supabase
-            .schema("soporte")
-            .from("pqrs")
-            .select("*")
-            .eq("id_cliente", cliente.id_cliente);
-
-          if (pqrsData) setPqrs(pqrsData);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPqrs();
-  }, []);
+  const { pqrs, loading, error } = usePQRS();
 
   return (
     <div className="min-h-screen bg-[#111009] p-6">

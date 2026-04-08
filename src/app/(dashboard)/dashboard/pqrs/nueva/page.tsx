@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useReservas } from "@/hooks/useReservas";
+import { useCliente } from "@/hooks/useCliente";
 
 const tiposPqr = [
   { label: "Peticion", icon: "📋" },
@@ -14,68 +16,28 @@ const tiposPqr = [
 export default function NuevaPqrsPage() {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const { reservas, loading: loadingReservas } = useReservas();
+  const { clienteId } = useCliente();
 
   const [form, setForm] = useState({
     tipoPqr: "",
     descripcion: "",
   });
-  const [reservas, setReservas] = useState<any[]>([]);
   const [reservaSeleccionada, setReservaSeleccionada] = useState<string>("");
-
-  useEffect(() => {
-    const fetchReservas = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: cliente } = await supabase
-        .schema("gestion")
-        .from("clientes")
-        .select("id_cliente")
-        .eq("auth_id", user.id)
-        .maybeSingle();
-
-      if (cliente) {
-        const { data: reservasData } = await supabase
-          .schema("gestion")
-          .from("reservas")
-          .select("*, servicios(nombre_servicio)")
-          .eq("id_cliente", cliente.id_cliente)
-          .order("fecha_agenda", { ascending: false });
-
-        if (reservasData) setReservas(reservasData);
-      }
-    };
-    fetchReservas();
-  }, [supabase]);
 
   const handleSubmit = async () => {
     if (!form.tipoPqr || !form.descripcion || !reservaSeleccionada) {
       return alert("Completa todos los campos y selecciona una reserva");
     }
 
-    // 🔥 usuario logueado
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return alert("No autenticado");
-
-    // 🔥 buscar cliente
-    const { data: cliente } = await supabase
-      .schema("gestion")
-      .from("clientes")
-      .select("id_cliente")
-      .eq("auth_id", user.id)
-      .maybeSingle();
-
-    if (!cliente) return alert("Cliente no encontrado, crea una reserva primero");
+    if (!clienteId) return alert("Cliente no encontrado, crea una reserva primero");
 
     // 🔥 insertar PQRS
     const { error } = await supabase
       .schema("soporte")
       .from("pqrs")
       .insert({
-        id_cliente: cliente.id_cliente,
+        id_cliente: clienteId,
         id_reserva: Number(reservaSeleccionada),
         tipo_pqr: form.tipoPqr,
         descripcion: form.descripcion,

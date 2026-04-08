@@ -1,83 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useReservas } from "@/hooks/useReservas";
 
 export default function ReservasPage() {
   const router = useRouter();
-  const [reservas, setReservas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createBrowserSupabaseClient();
-
-  useEffect(() => {
-    const fetchDatosInmediato = async () => {
-      try {
-        setLoading(true);
-
-        // 1. Obtener el ID de autenticación (el que viene del Login)
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) throw new Error("Sesión no iniciada");
-
-        console.log("ID de Auth detectado:", user.id);
-
-        // 2. Intentar buscar el cliente en tu esquema 'gestion'
-        let { data: cliente, error: clienteError } = await supabase
-          .schema("gestion")
-          .from("clientes")
-          .select("id_cliente")
-          .eq("auth_id", user.id)
-          .maybeSingle();
-
-        // 3. SOLUCIÓN INMEDIATA: Si no existe, lo creamos en este mismo instante
-        if (!cliente) {
-          console.warn("Cliente no existe en BD. Creando perfil ahora mismo...");
-
-          const nuevoIdManual = Math.floor(Math.random() * 900000) + 100000;
-
-          const { data: nuevoCliente, error: insertError } = await supabase
-            .schema("gestion")
-            .from("clientes")
-            .insert({
-              id_cliente: nuevoIdManual,
-              auth_id: user.id,
-              // Si tienes campos de nombre o email, agrégalos aquí:
-              // nombre: user.user_metadata.full_name || 'Nuevo Usuario'
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Error fatal al crear cliente:", insertError.message);
-            throw insertError;
-          }
-
-          cliente = nuevoCliente;
-          console.log("Perfil creado con éxito:", cliente.id_cliente);
-        }
-
-        // 4. Cargar reservas con el ID que ya tenemos garantizado
-        const { data: reservasData, error: reservasError } = await supabase
-          .schema("gestion")
-          .from("reservas")
-          .select("*, servicios(nombre_servicio)")
-          .eq("id_cliente", cliente.id_cliente)
-          .order("fecha_agenda", { ascending: false });
-
-        if (reservasError) throw reservasError;
-
-        setReservas(reservasData || []);
-
-      } catch (err: any) {
-        console.error("ERROR CRÍTICO:", err.message);
-        // Si sale error aquí, es por falta de permisos en Supabase (RLS)
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDatosInmediato();
-  }, [supabase]);
+  const { reservas, loading, error } = useReservas();
 
   return (
     <div className="min-h-screen bg-[#111009] p-6 text-white">
