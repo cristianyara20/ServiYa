@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { getRoleAfterLogin } from "./actions";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -29,7 +30,9 @@ export default function LoginForm() {
       return;
     }
 
-    if (email === "pepitoperez132604@gmail.com") {
+    const role = await getRoleAfterLogin();
+
+    if (role === "admin") {
       router.push("/dashboard/admin");
     } else {
       router.push("/dashboard");
