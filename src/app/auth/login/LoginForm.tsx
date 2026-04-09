@@ -46,6 +46,14 @@ export default function LoginForm() {
 
         const userRole = (dbUser as any)?.rol || "usuario";
 
+        // Validar que el rol seleccionado coincida con el rol real
+        if (userRole !== rol) {
+          await supabase.auth.signOut();
+          setError(`Tu cuenta no tiene el rol de "${rol === "admin" ? "Administrador" : rol === "prestador" ? "Prestador" : "Usuario"}". Selecciona el rol correcto.`);
+          setLoading(false);
+          return;
+        }
+
         // Redirigir según el rol real de la base de datos
         if (userRole === "admin") {
           router.push("/dashboard/admin");

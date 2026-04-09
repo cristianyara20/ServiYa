@@ -9,7 +9,6 @@ export default function RegisterForm() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [rol, setRol] = useState("usuario");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -42,7 +41,7 @@ export default function RegisterForm() {
           nombre,
           apellido,
           fecha_nacimiento: fechaNacimiento,
-          rol,
+          rol: "usuario",
         },
       },
     });
@@ -101,17 +100,18 @@ export default function RegisterForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-neutral-300">Rol</label>
+        <label className="text-sm font-medium text-neutral-300">Tipo de cuenta</label>
         <select
-          value={rol}
-          onChange={(e) => setRol(e.target.value)}
+          value="usuario"
+          onChange={() => {}}
           required
           className="bg-neutral-800 border border-neutral-700 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 placeholder:text-neutral-500 transition-colors appearance-none"
         >
           <option value="usuario">Usuario / Cliente</option>
-          <option value="prestador">Prestador de Servicios</option>
-          <option value="admin">Administrador</option>
+          <option value="prestador" disabled>🔒 Prestador de Servicios</option>
+          <option value="admin" disabled>🔒 Administrador</option>
         </select>
+        <p className="text-xs text-neutral-500">Solo el registro como usuario está disponible. Los roles de prestador y administrador son asignados internamente.</p>
       </div>
 
       <div className="flex flex-col gap-1.5">
