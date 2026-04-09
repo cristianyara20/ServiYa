@@ -416,24 +416,53 @@ export default function AdminPanel() {
         {/* Zona de Gestión de Reseñas */}
         {activeTab === 'Gestión de Reseñas' && (
           <div className="bg-[#111] border border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden">
-             <div className="mb-6">
-                <h2 className="text-xl font-bold flex items-center gap-2"><span>⭐</span> Valoraciones y Reseñas</h2>
-                <p className="text-neutral-500 text-sm mt-1">Feedback directo de los clientes</p>
+             <div className="mb-6 flex justify-between items-end">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>⭐</span> Valoraciones y Reseñas</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Feedback directo de los clientes</p>
+                </div>
+                <span className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-bold px-4 py-1.5 rounded-full">
+                  {allReviews.length} reseña{allReviews.length !== 1 ? 's' : ''}
+                </span>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {allReviews.length === 0 ? (
                   <div className="col-span-full py-10 text-center text-neutral-600">No hay reseñas por ahora.</div>
                 ) : (
                   allReviews.map((rev, i) => (
-                    <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group">
-                       <div className="absolute right-4 top-4 text-2xl opacity-20 group-hover:opacity-100 transition-opacity">⭐</div>
-                       <div className="text-xs text-neutral-500 mb-1">Por: <span className="text-white font-bold">{rev.cliente_nombre}</span></div>
-                       <div className="flex gap-1 mb-3">
-                          {[...Array(5)].map((_, idx) => (
-                             <span key={idx} className={idx < rev.puntuacion ? 'text-yellow-500' : 'text-neutral-700'}>★</span>
-                          ))}
+                    <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
+                       <div className="absolute right-4 top-4 text-3xl font-black text-yellow-500/10 group-hover:text-yellow-500/30 transition-opacity">{rev.puntuacion}.0</div>
+                       
+                       {/* Cliente */}
+                       <div className="flex items-center gap-2 mb-3">
+                         <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
+                           {rev.cliente_nombre?.charAt(0)?.toUpperCase() || '?'}
+                         </div>
+                         <div>
+                           <div className="text-sm font-bold text-white">{rev.cliente_nombre}</div>
+                           <div className="text-[10px] text-neutral-500">{rev.cliente_email}</div>
+                         </div>
                        </div>
-                       <p className="text-sm text-neutral-300 italic">"{rev.comentario || 'Sin comentario escrito.'}"</p>
+
+                       {/* Estrellas + puntuación */}
+                       <div className="flex items-center gap-2 mb-3">
+                         <div className="flex gap-0.5">
+                           {[...Array(5)].map((_, idx) => (
+                             <span key={idx} className={idx < rev.puntuacion ? 'text-yellow-500 text-base' : 'text-neutral-700 text-base'}>★</span>
+                           ))}
+                         </div>
+                         <span className="text-xs text-neutral-400 font-mono">{rev.puntuacion}/5</span>
+                       </div>
+
+                       {/* Comentario */}
+                       <p className="text-sm text-neutral-300 italic leading-relaxed">"{rev.comentario || 'Sin comentario escrito.'}"</p>
+
+                       {/* Fecha */}
+                       {rev.fecha_calificacion && (
+                         <div className="text-[10px] text-neutral-600 mt-3">
+                           {new Date(rev.fecha_calificacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                         </div>
+                       )}
                     </div>
                   ))
                 )}

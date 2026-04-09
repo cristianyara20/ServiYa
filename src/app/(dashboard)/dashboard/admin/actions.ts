@@ -134,9 +134,15 @@ export async function getAdminDashboardData() {
   });
 
   const allReviewsList = calificaciones.map(c => {
-      const res = finalReservas.find(r => String(r.id_reserva) === String(c.id_reserva));
-      const u = res ? Array.from(allUsersMap.values()).find(user => user.validIds.has(String(res.id_cliente)) || user.validIds.has(String(res.id_usuario))) : null;
-      return { ...c, cliente_nombre: u?.nombre || 'Desconocido' };
+      // id_calificacion → id_reserva → id_cliente → id_usuario en seguridad
+      const res = finalReservas.find(r => Number(r.id_reserva) === Number(c.id_reserva));
+      const u = res ? userByDbId.get(Number(res.id_cliente)) : null;
+      return {
+        ...c,
+        cliente_nombre: u?.nombre ? `${u.nombre}${u.apellido ? ' ' + u.apellido : ''}` : `Cliente #${res?.id_cliente ?? '?'}`,
+        cliente_email: u?.email || 'N/A',
+        servicio_id: res?.id_servicio || '?',
+      };
   });
 
   return {
