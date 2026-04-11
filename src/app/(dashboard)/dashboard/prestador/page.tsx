@@ -142,10 +142,38 @@ export default function PrestadorDashboard() {
             </div>
           </div>
 
-          <div className="bg-orange-600/10 border border-orange-500/20 rounded-3xl p-6">
-            <p className="text-orange-500 text-sm font-medium leading-relaxed">
-              Recuerda marcar tus servicios como "terminados" para que tus clientes puedan calificarte.
-            </p>
+          <div className="bg-gradient-to-b from-orange-600 via-orange-500 to-red-600 rounded-3xl p-6 relative overflow-hidden shadow-2xl shadow-orange-500/20 group">
+             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl pointer-events-none group-hover:bg-white/30 transition-colors"></div>
+             
+             <div className="text-white relative z-10 text-center mb-6 mt-2">
+                <div className="inline-block bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 mb-3 shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                   <h3 className="text-[10px] uppercase tracking-widest font-bold text-white/90">Nivel Actual</h3>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-4xl">🏅</span>
+                  <p className="text-4xl font-black drop-shadow-md tracking-tight">Experto</p>
+                </div>
+             </div>
+
+             <div className="relative z-10 bg-black/40 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
+                <div className="flex justify-between items-end mb-3 font-bold uppercase text-white/90">
+                   <span className="text-[10px] tracking-widest text-orange-200">Próxima meta</span>
+                   <span className="text-lg bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-300 drop-shadow-md">75%</span>
+                </div>
+                <div className="w-full bg-black/60 rounded-full h-2.5 mb-5 overflow-hidden border border-white/5 relative">
+                   <div className="bg-gradient-to-r from-yellow-400 via-yellow-200 to-white h-2.5 rounded-full w-[75%] shadow-[0_0_15px_rgba(253,224,71,0.8)] relative overflow-hidden">
+                     <div className="absolute inset-0 bg-white/40 skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+                   </div>
+                </div>
+                
+                <p className="text-white/80 text-xs text-center leading-relaxed">
+                   ¡Has completado servicios increíbles! Estás a muy poco de subir a rango <strong className="text-white font-black bg-white/10 px-2 py-0.5 rounded-md">Maestro ⭐</strong>.
+                </p>
+             </div>
+             
+             <style dangerouslySetInnerHTML={{__html:`
+               @keyframes shimmer { 100% { transform: translateX(200%); } }
+             `}} />
           </div>
         </div>
 

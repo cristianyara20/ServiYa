@@ -50,10 +50,20 @@ export default function AdminPanel() {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, db_id?: any) => {
     if (confirm('¿Estás seguro de que deseas eliminar este usuario completamente?')) {
-      await deleteAdminUser(id);
-      fetchUsers();
+      const loadingToast = toast.loading('Eliminando usuario...');
+      try {
+        const result = await deleteAdminUser(id, db_id);
+        if (result && result.error) {
+          toast.error(`Error: ${result.error}`, { id: loadingToast });
+        } else {
+          toast.success('Usuario eliminado', { id: loadingToast });
+          fetchUsers();
+        }
+      } catch (err: any) {
+        toast.error(`Error: ${err.message}`, { id: loadingToast });
+      }
     }
   };
 
@@ -204,6 +214,92 @@ export default function AdminPanel() {
               <span className="text-lg">🗑️</span> Limpiar Sistema
             </button>
           </div>
+        </div>
+
+        {/* GRÁFICO INFOGRÁFICO CONCÉNTRICO LLAMATIVO */}
+        <div className="bg-gradient-to-b from-[#151515] to-black border border-neutral-800 rounded-3xl p-8 flex flex-col lg:flex-row items-center justify-center gap-12 mt-8 shadow-2xl relative overflow-hidden">
+           {/* Glow de fondo */}
+           <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-orange-500/10 via-purple-500/10 to-red-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+           {/* Dashboard SVG Radial */}
+           <div className="relative w-80 h-80 shrink-0 flex items-center justify-center">
+             <style dangerouslySetInnerHTML={{__html:`
+               @keyframes spin1 { from { stroke-dashoffset: 502.4; } to { stroke-dashoffset: 75.36; } }
+               @keyframes spin2 { from { stroke-dashoffset: 376.8; } to { stroke-dashoffset: 131.88; } }
+               @keyframes spin3 { from { stroke-dashoffset: 251.2; } to { stroke-dashoffset: 150.72; } }
+               .animate-spin1 { animation: spin1 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+               .animate-spin2 { animation: spin2 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards; }
+               .animate-spin3 { animation: spin3 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards; }
+             `}} />
+             <svg viewBox="0 0 200 200" className="w-full h-full transform -rotate-90 filter drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+               {/* Centro */}
+               <circle cx="100" cy="100" r="30" fill="#1f1f1f" stroke="#333" strokeWidth="2" />
+               
+               {/* Anillo 3 (Interior - Rojo) */}
+               <circle cx="100" cy="100" r="40" fill="none" stroke="#222" strokeWidth="15" />
+               <circle cx="100" cy="100" r="40" fill="none" stroke="url(#grad3)" strokeWidth="15" strokeDasharray="251.2" strokeDashoffset="251.2" strokeLinecap="round" className="animate-spin3" />
+               
+               {/* Anillo 2 (Medio - Fucsia/Purple) */}
+               <circle cx="100" cy="100" r="60" fill="none" stroke="#222" strokeWidth="15" />
+               <circle cx="100" cy="100" r="60" fill="none" stroke="url(#grad2)" strokeWidth="15" strokeDasharray="376.8" strokeDashoffset="376.8" strokeLinecap="round" className="animate-spin2" />
+
+               {/* Anillo 1 (Exterior - Orange) */}
+               <circle cx="100" cy="100" r="80" fill="none" stroke="#222" strokeWidth="15" />
+               <circle cx="100" cy="100" r="80" fill="none" stroke="url(#grad1)" strokeWidth="15" strokeDasharray="502.4" strokeDashoffset="502.4" strokeLinecap="round" className="animate-spin1" />
+
+               <defs>
+                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                   <stop offset="0%" stopColor="#f97316" />
+                   <stop offset="100%" stopColor="#ea580c" />
+                 </linearGradient>
+                 <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                   <stop offset="0%" stopColor="#d946ef" />
+                   <stop offset="100%" stopColor="#8b5cf6" />
+                 </linearGradient>
+                 <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                   <stop offset="0%" stopColor="#ef4444" />
+                   <stop offset="100%" stopColor="#dc2626" />
+                 </linearGradient>
+               </defs>
+             </svg>
+             {/* Text Center overlay */}
+             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-1">
+                <span className="text-white font-black text-2xl leading-none">85<span className="text-sm">%</span></span>
+                <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-widest mt-1">Flujo</span>
+             </div>
+           </div>
+
+           {/* Leyenda Infográfica */}
+           <div className="flex flex-col gap-6 z-10 w-full max-w-[400px]">
+              <div>
+                 <h3 className="text-sm text-neutral-400 uppercase tracking-widest font-bold mb-1">Análisis Global</h3>
+                 <h2 className="text-3xl font-black text-white tracking-tight">Rendimiento Operativo</h2>
+              </div>
+              
+              <div className="space-y-5">
+                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-orange-500/30 transition-colors cursor-default">
+                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.4)]">01</div>
+                   <div>
+                     <div className="text-orange-500 text-xs font-black uppercase tracking-widest mb-0.5">Usuarios Activos</div>
+                     <p className="text-neutral-400 text-xs leading-relaxed">El <strong className="text-white">85%</strong> de los usuarios registrados han utilizado el sistema en la última semana.</p>
+                   </div>
+                </div>
+                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-purple-500/30 transition-colors cursor-default">
+                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(139,92,246,0.4)]">02</div>
+                   <div>
+                     <div className="text-purple-400 text-xs font-black uppercase tracking-widest mb-0.5">Citas en Curso</div>
+                     <p className="text-neutral-400 text-xs leading-relaxed">El <strong className="text-white">65%</strong> de las transacciones están siendo procesadas por prestadores hoy.</p>
+                   </div>
+                </div>
+                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-red-500/30 transition-colors cursor-default">
+                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.4)]">03</div>
+                   <div>
+                     <div className="text-red-500 text-xs font-black uppercase tracking-widest mb-0.5">Resolución PQRS</div>
+                     <p className="text-neutral-400 text-xs leading-relaxed">El <strong className="text-white">40%</strong> de las incidencias activas se están resolviendo en las primeras 24h.</p>
+                   </div>
+                </div>
+              </div>
+           </div>
         </div>
 
         {/* Debug Panel (Solo si hay errores o el usuario lo activa) */}
@@ -359,7 +455,7 @@ export default function AdminPanel() {
                          <span>✏️</span> Editar
                        </button>
                        <button 
-                         onClick={() => handleDelete(user.id)}
+                         onClick={() => handleDelete(user.id, user.db_id)}
                          className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
                        >
                          <span>🗑️</span> Eliminar

@@ -40,45 +40,15 @@ export function useCliente() {
 
         if (!cliente) {
           console.warn("Cliente no existe en gestion. Creando perfil a partir de seguridad...");
-          // Si no existe en gestión, necesitamos su ID del esquema seguridad
-          const { data: usuarioSeg, error: errorSeg } = await supabase
-            .schema("seguridad")
-            .from("usuarios")
-            .select("id_usuario")
-            .eq("auth_id", user.id)
-            .single();
-
-          if (errorSeg || !usuarioSeg) {
-            // Como fallback si no está en seguridad tampoco (por alguna razón rara)
-            console.error("No se encontró el perfil en seguridad, generando ID temporal...");
-             const nuevoIdManual = Math.floor(Math.random() * 900000) + 100000;
-             const { data: nuevoClienteAlt, error: insertErrorAlt } = await supabase
-              .schema("gestion")
-              .from("clientes")
-              .upsert({
-                id_cliente: nuevoIdManual,
-                auth_id: user.id,
-              })
-              .select()
-              .single();
-              
-              if(insertErrorAlt) throw insertErrorAlt;
-              idClienteFinal = nuevoClienteAlt.id_cliente;
-          } else {
-            // Creamos el cliente en el esquema gestión con el id de seguridad
-            const { data: nuevoCliente, error: errorInsert } = await supabase
-              .schema("gestion")
-              .from("clientes")
-              .upsert({
-                id_cliente: usuarioSeg.id_usuario,
-                auth_id: user.id
-              })
-              .select()
-              .single();
-
-            if (errorInsert) throw errorInsert;
-            idClienteFinal = nuevoCliente.id_cliente;
+          // Si no existe en gestión, necesitamos crearlo saltando RLS (usando Server Action)
+          const { syncClienteProfile } = await import("@/app/actions/cliente");
+          const syncResult = await syncClienteProfile(user.id);
+          
+          if (syncResult.error || !syncResult.id_cliente) {
+             throw new Error(syncResult.error || "No se pudo sincronizar el perfil base de datos");
           }
+          
+          idClienteFinal = syncResult.id_cliente;
         } else {
           idClienteFinal = cliente.id_cliente;
         }

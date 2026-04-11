@@ -10,9 +10,9 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-black">
       <Navbar user={user} />
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 w-full bg-black">{children}</main>
     </div>
   );
 }

@@ -162,10 +162,65 @@ export async function getAdminDashboardData() {
   };
 }
 
-export async function deleteAdminUser(id: string) {
-  if (id.startsWith('legacy-')) return; // No borrar legacy desde el auth list
-  await supabaseAdmin.auth.admin.deleteUser(id);
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export async function deleteAdminUser(id: string, db_id?: any) {
+  // Autorización: Solo admins
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.user_metadata?.rol !== 'admin') {
+    return { error: 'No autorizado. Solo los administradores pueden eliminar usuarios.' };
+  }
+
+  if (!id.startsWith('legacy-')) {
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+    if (authError) {
+      console.error("Error deleting auth user:", authError);
+      return { error: `Auth Error: ${authError.message}` };
+    }
+  }
+
+  const targetDbId = id.startsWith('legacy-') ? id.replace('legacy-', '') : db_id;
+  
+  if (targetDbId) {
+    // Borrado en cascada manual para dependencias conocidas (Citas, PQRs, Clientes/Prestadores)
+    try {
+      // 1. Borrar PQRs
+      await supabaseAdmin.schema('soporte').from('pqrs').delete().eq('id_cliente', targetDbId);
+      await supabaseAdmin.schema('soporte').from('pqrs').delete().eq('id_usuario', targetDbId);
+      
+      // 2. Borrar Calificaciones ligadas a sus reservas (como cliente)
+      const { data: userReservas } = await supabaseAdmin.schema('gestion').from('reservas').select('id_reserva').eq('id_cliente', targetDbId);
+      if (userReservas && userReservas.length > 0) {
+         const resIds = userReservas.map(r => r.id_reserva);
+         await supabaseAdmin.schema('gestion').from('calificaciones').delete().in('id_reserva', resIds);
+      }
+      
+      // 3. Borrar las reservas
+      await supabaseAdmin.schema('gestion').from('reservas').delete().eq('id_cliente', targetDbId);
+      await supabaseAdmin.schema('gestion').from('reservas').delete().eq('id_prestador', targetDbId);
+
+      // 4. Borrar Cliente/Prestador con las columnas correctas (id_cliente y id_prestador)
+      await supabaseAdmin.schema('gestion').from('clientes').delete().eq('id_cliente', targetDbId);
+      await supabaseAdmin.schema('gestion').from('prestadores').delete().eq('id_prestador', targetDbId);
+    } catch (cleanupError) {
+      console.error("Cleanup warning:", cleanupError);
+    }
+
+    const { error: dbError } = await supabaseAdmin
+      .schema('seguridad')
+      .from('usuarios')
+      .delete()
+      .eq('id_usuario', targetDbId);
+      
+    if (dbError) {
+      console.error("Error deleting from DB:", dbError);
+      return { error: `DB Error: ${dbError.message}` };
+    }
+  }
+
   revalidatePath('/dashboard/admin');
+  return { success: true };
 }
 
 export async function updateAdminUser(id: string, attributes: any, db_id?: any) {
