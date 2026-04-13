@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protección del panel admin
-  if (session && isAdminPage && session.user.email !== "pepitoperez132604@gmail.com") {
+  if (session && isAdminPage && session.user.user_metadata?.rol !== "admin") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

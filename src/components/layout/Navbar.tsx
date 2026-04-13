@@ -41,7 +41,7 @@ export default function Navbar({ user }: { user: User | null }) {
     <span className="text-purple-400 text-sm">📩</span> PQRS
   </Link>
 
-  {user?.email === "pepitoperez132604@gmail.com" && (
+  {user?.user_metadata?.rol === "admin" && (
     <Link 
       href="/dashboard/admin" 
       className="flex items-center gap-1.5 text-xs font-semibold text-neutral-300 hover:text-white transition-colors"
