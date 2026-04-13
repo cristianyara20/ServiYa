@@ -19,9 +19,9 @@ function mapToReserva(row: any): Reserva {
 function mapToInsertRow(dto: CreateReservaDTO) {
   return {
     id_cliente: dto.idCliente,
-    id_prestador: dto.idPrestador,
     id_servicio: dto.idServicio,
     fecha_agenda: dto.fechaAgenda,
+    ...(dto.idPrestador != null && { id_prestador: dto.idPrestador }),
     ...(dto.fechaSolicitud && { fecha_solicitud: dto.fechaSolicitud }),
     ...(dto.direccion && { direccion: dto.direccion }),
     ...(dto.descripcion && { descripcion: dto.descripcion }),
@@ -31,7 +31,7 @@ function mapToInsertRow(dto: CreateReservaDTO) {
 function mapToUpdateRow(dto: Partial<CreateReservaDTO>) {
   return {
     ...(dto.idCliente !== undefined && { id_cliente: dto.idCliente }),
-    ...(dto.idPrestador !== undefined && { id_prestador: dto.idPrestador }),
+    ...(dto.idPrestador != null && { id_prestador: dto.idPrestador }),
     ...(dto.idServicio !== undefined && { id_servicio: dto.idServicio }),
     ...(dto.fechaSolicitud !== undefined && { fecha_solicitud: dto.fechaSolicitud }),
     ...(dto.fechaAgenda !== undefined && { fecha_agenda: dto.fechaAgenda }),
