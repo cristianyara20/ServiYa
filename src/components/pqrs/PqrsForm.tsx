@@ -1,11 +1,26 @@
 "use client";
 
+/**
+ * Componente puro de UI para el formulario de PQRS.
+ * Recibe datos y callbacks por props — NO importa Services, Hooks, ni lib.
+ */
+
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import PqrsList from "@/components/pqrs/PqrsList";
 
-export default function Home() {
+interface Pqr {
+  id_pqr: number;
+  tipo_pqr: string;
+  descripcion: string;
+  estado_pqr: string;
+}
+
+interface PqrsFormProps {
+  pqrs: Pqr[];
+  onSubmit: (data: { tipo: string; descripcion: string }) => Promise<void>;
+}
+
+export default function PqrsForm({ pqrs, onSubmit }: PqrsFormProps) {
   const [form, setForm] = useState({
     tipo: "Petición",
     descripcion: "",
@@ -13,34 +28,7 @@ export default function Home() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    const payload = {
-      id_cliente: 1, // 🔥 Luego hacerlo dinámico con el ID del usuario logueado
-      id_reserva: 1,
-      tipo_pqr: form.tipo,
-      descripcion: form.descripcion,
-      estado_pqr: "Abierto",
-    };
-
-    const { data, error } = await supabase
-      .from("soporte.pqrs")
-      .insert([payload])
-      .select();
-
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-
-    if (error) {
-      alert("❌ ERROR: " + error.message);
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      alert("❌ No se insertó nada");
-      return;
-    }
-
-    alert("✅ PQR Insertado correctamente");
+    await onSubmit(form);
     setForm({ ...form, descripcion: "" }); // Limpiar campo
   };
 
@@ -110,7 +98,25 @@ export default function Home() {
         </form>
 
         <hr style={{ margin: "30px 0", opacity: 0.3 }} />
-        <PqrsList />
+        
+        {/* PqrsList ahora recibe datos por props */}
+        <div>
+          <h2>Mis PQRS</h2>
+          {pqrs.length === 0 && <p>No hay PQRS</p>}
+          {pqrs.map((p) => (
+            <div key={p.id_pqr} style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              margin: "10px 0",
+              borderRadius: "8px"
+            }}>
+              <p><b>ID:</b> {p.id_pqr}</p>
+              <p><b>Tipo:</b> {p.tipo_pqr}</p>
+              <p><b>Descripción:</b> {p.descripcion}</p>
+              <p><b>Estado:</b> {p.estado_pqr}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

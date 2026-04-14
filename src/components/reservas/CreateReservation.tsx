@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { obtenerReservas } from "@/services/reservasService";
+/**
+ * Componente puro de UI para listar reservas.
+ * Recibe los datos por props — NO importa Services ni Hooks.
+ */
 
-export default function ReservationsList() {
-  const [reservas, setReservas] = useState([]);
+interface Reserva {
+  id_reserva: number;
+  fecha_agenda: string;
+  direccion: string;
+  descripcion: string;
+}
 
-  const cargarReservas = async () => {
-    const { data, error } = await obtenerReservas();
-    if (!error) setReservas(data);
-  };
+interface ReservationsListProps {
+  reservas: Reserva[];
+}
 
-  useEffect(() => {
-    cargarReservas();
-  }, []);
-
+export default function ReservationsList({ reservas }: ReservationsListProps) {
   return (
     <div>
       <h2>Mis Citas</h2>

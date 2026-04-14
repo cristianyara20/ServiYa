@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { getPrestadorAuthUser, subscribeReservasChanges } from '@/services/prestador/prestadorClientService';
 import { getPrestadorDashboardData, updateBookingStatus, updatePrestadorAvailability } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
 
@@ -10,11 +10,9 @@ export default function PrestadorDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('solicitudes'); // solicitudes, activos, historial
 
-  const supabase = createBrowserSupabaseClient();
-
   const fetchData = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getPrestadorAuthUser();
     if (user) {
       const result = await getPrestadorDashboardData(user.id);
       if (result.success) {
@@ -29,25 +27,13 @@ export default function PrestadorDashboard() {
   useEffect(() => {
     fetchData();
 
-    // Suscripción en tiempo real para la tabla de reservas
-    const channel = supabase
-      .channel('reservas_prestador')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Escuchar todos los cambios (INSERT, UPDATE, DELETE)
-          schema: 'gestion',
-          table: 'reservas'
-        },
-        () => {
-          console.log('🔄 Cambio detectado en reservas, actualizando...');
-          fetchData();
-        }
-      )
-      .subscribe();
+    // Suscripción en tiempo real para la tabla de reservas (via Service)
+    const unsubscribe = subscribeReservasChanges(() => {
+      fetchData();
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, []);
 

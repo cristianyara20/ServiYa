@@ -1,25 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+/**
+ * Componente puro de UI para listar PQRS.
+ * Recibe los datos por props — NO importa Services ni Hooks.
+ */
 
-export default function PqrsList() {
-  const [pqrs, setPqrs] = useState([]);
+interface Pqr {
+  id_pqr: number;
+  tipo_pqr: string;
+  descripcion: string;
+  estado_pqr: string;
+}
 
-  const cargarPqrs = async () => {
-    const { data, error } = await supabase
-      .schema("soporte")
-      .from("pqrs")
-      .select("*")
-      .order("id_pqr", { ascending: false });
+interface PqrsListProps {
+  pqrs: Pqr[];
+}
 
-    if (!error) setPqrs(data);
-  };
-
-  useEffect(() => {
-    cargarPqrs();
-  }, []);
-
+export default function PqrsList({ pqrs }: PqrsListProps) {
   return (
     <div>
       <h2>Mis PQRS</h2>

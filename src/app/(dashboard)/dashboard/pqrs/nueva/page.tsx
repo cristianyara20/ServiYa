@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { createPqrs } from "@/services/pqrs/pqrsClientService";
 import { useReservas } from "@/hooks/useReservas";
 import { useCliente } from "@/hooks/useCliente";
 
@@ -15,7 +15,6 @@ const tiposPqr = [
 
 export default function NuevaPqrsPage() {
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
   const { reservas, loading: loadingReservas } = useReservas();
   const { clienteId } = useCliente();
 
@@ -32,19 +31,16 @@ export default function NuevaPqrsPage() {
 
     if (!clienteId) return alert("Cliente no encontrado, crea una reserva primero");
 
-    // 🔥 insertar PQRS
-    const { error } = await supabase
-      .schema("soporte")
-      .from("pqrs")
-      .insert({
-        id_cliente: clienteId,
-        id_reserva: Number(reservaSeleccionada),
-        tipo_pqr: form.tipoPqr,
-        descripcion: form.descripcion,
-      });
+    // 🔥 insertar PQRS (via Service)
+    const result = await createPqrs({
+      id_cliente: clienteId,
+      id_reserva: Number(reservaSeleccionada),
+      tipo_pqr: form.tipoPqr,
+      descripcion: form.descripcion,
+    });
 
-    if (error) {
-      return alert("Error: " + error.message);
+    if (!result) {
+      return alert("Error al crear PQRS");
     }
 
     alert("PQRS enviada correctamente");

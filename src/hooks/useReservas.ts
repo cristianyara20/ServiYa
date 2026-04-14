@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { getReservasByCliente } from "@/services/reservas/reservaClientService";
 import { useCliente } from "./useCliente";
 
 export function useReservas() {
@@ -12,16 +12,8 @@ export function useReservas() {
     if (!clienteId) return;
     try {
       setLoading(true);
-      const supabase = createBrowserSupabaseClient();
-      const { data: reservasData, error: reservasError } = await supabase
-        .schema("gestion")
-        .from("reservas")
-        .select("*, servicios(nombre_servicio)")
-        .eq("id_cliente", clienteId)
-        .order("fecha_agenda", { ascending: false });
-
-      if (reservasError) throw reservasError;
-      setReservas(reservasData || []);
+      const reservasData = await getReservasByCliente(clienteId);
+      setReservas(reservasData);
       setError(null);
     } catch (err: any) {
       console.error("Error al obtener reservas:", err);

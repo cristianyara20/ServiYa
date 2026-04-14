@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function PqrsPage() {
   const [form, setForm] = useState({
@@ -22,6 +22,7 @@ export default function PqrsPage() {
       estado_pqr: "Abierto", // ✅ nombre correcto según tu BD
     };
 
+    const supabase = createBrowserSupabaseClient();
     const { error } = await supabase
       .schema("soporte")
       .from("pqrs")
