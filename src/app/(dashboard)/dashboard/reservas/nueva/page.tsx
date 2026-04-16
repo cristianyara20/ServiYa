@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { createReserva } from "@/services/reservas/reservaClientService";
 import { useCliente } from "@/hooks/useCliente";
 
 const servicios = [
@@ -43,7 +43,6 @@ const subServicios: Record<number, { label: string; opciones: string[] }> = {
 
 export default function NuevaReservaPage() {
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
   const { clienteId } = useCliente();
 
   const [servicioSeleccionado, setServicioSeleccionado] = useState<number | null>(null);
@@ -71,20 +70,15 @@ export default function NuevaReservaPage() {
         return alert("Error: Perfil de cliente no encontrado o cargando");
       }
 
-      // 3. INSERTAR RESERVA (CORRECCIÓN DE ESQUEMA)
-      const { error: errorReserva } = await supabase
-        .schema("gestion")
-        .from("reservas")
-        .insert({
-          id_cliente: clienteId,
-          id_prestador: null, // Se deja null para que aparezca en el mercado general de solicitudes pendientes
-          id_servicio: servicioSeleccionado,
-          direccion: form.direccion,
-          descripcion: `${subServicioSeleccionado}: ${form.detalleExtra}`,
-          fecha_agenda: new Date().toISOString(),
-        });
-
-      if (errorReserva) throw errorReserva;
+      // 3. INSERTAR RESERVA (via Service)
+      await createReserva({
+        id_cliente: clienteId,
+        id_prestador: null, // Se deja null para que aparezca en el mercado general de solicitudes pendientes
+        id_servicio: servicioSeleccionado,
+        direccion: form.direccion,
+        descripcion: `${subServicioSeleccionado}: ${form.detalleExtra}`,
+        fecha_agenda: new Date().toISOString(),
+      });
 
       alert("✅ Cita agendada correctamente");
       router.push("/dashboard/reservas");

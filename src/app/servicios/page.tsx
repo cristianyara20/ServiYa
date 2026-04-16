@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function ServiciosPage() {
   const [form, setForm] = useState({
@@ -13,8 +13,10 @@ export default function ServiciosPage() {
   const [servicios, setServicios] = useState<any[]>([]);
 
   const getServicios = async () => {
+    const supabase = createBrowserSupabaseClient();
     const { data } = await supabase
-      .from("gestion.servicios")
+      .schema("gestion")
+      .from("servicios")
       .select("*");
 
     setServicios(data || []);
@@ -27,7 +29,8 @@ export default function ServiciosPage() {
   const handleSubmit = async (e:any) => {
     e.preventDefault();
 
-    await supabase.from("gestion.servicios").insert(form);
+    const supabase = createBrowserSupabaseClient();
+    await supabase.schema("gestion").from("servicios").insert(form);
 
     getServicios(); // refresca lista
   };

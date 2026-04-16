@@ -1,10 +1,5 @@
-"use server";
-
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-
-export async function logoutAction() {
-  const supabase = await createServerSupabaseClient();
-  await supabase.auth.signOut();
-  redirect("/auth/login");
-}
+/**
+ * Re-exporta desde services/auth para mantener compatibilidad.
+ * La implementación real vive en la capa de Services.
+ */
+export { logoutAction } from "@/services/auth/auth.actions";

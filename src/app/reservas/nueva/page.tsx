@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { crearReserva } from "@/services/reservasService";
+import { createReserva } from "@/services/reservas/reservaClientService";
 
 export default function NuevaReserva() {
   const [form, setForm] = useState({
@@ -16,18 +15,20 @@ export default function NuevaReserva() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const { error } = await crearReserva({
-      id_cliente: 1, // 🔥 luego lo hacemos automático
-      id_prestador: 1,
-      id_servicio: 1,
-      fecha_agenda: new Date(),
-      direccion: form.direccion,
-      descripcion: form.servicio,
-    });
+    try {
+      await createReserva({
+        id_cliente: 1, // 🔥 luego lo hacemos automático
+        id_prestador: 1,
+        id_servicio: 1,
+        fecha_agenda: new Date().toISOString(),
+        direccion: form.direccion,
+        descripcion: form.servicio,
+      });
 
-    if (error) return alert(error.message);
-
-    alert("Cita agendada");
+      alert("Cita agendada");
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
   const servicios = [

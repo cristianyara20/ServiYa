@@ -1,36 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { obtenerReservas, crearCalificacion } from "@/services/calificacionesService";
+/**
+ * Componente puro de UI para calificar servicios.
+ * Recibe datos y callbacks por props — NO importa Services ni Hooks.
+ */
 
-export default function RatingForm() {
-  const [reservas, setReservas] = useState([]);
+import { useState } from "react";
+
+interface Reserva {
+  id_reserva: number;
+}
+
+interface RatingFormProps {
+  reservas: Reserva[];
+  onSubmit: (data: { id_reserva: string; puntuacion: number; comentario: string }) => Promise<void>;
+}
+
+export default function RatingForm({ reservas, onSubmit }: RatingFormProps) {
   const [form, setForm] = useState({
     id_reserva: "",
     puntuacion: 0,
     comentario: "",
   });
 
-  useEffect(() => {
-    const cargar = async () => {
-      const { data } = await obtenerReservas();
-      setReservas(data || []);
-    };
-    cargar();
-  }, []);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!form.id_reserva || form.puntuacion === 0) {
       return alert("Completa todos los campos");
     }
 
-    const { error } = await crearCalificacion(form);
-
-    if (error) return alert(error.message);
-
-    alert("Calificación enviada");
+    await onSubmit(form);
   };
 
   return (

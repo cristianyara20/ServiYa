@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { getAuthUser, getClienteByAuthId } from "@/services/cliente/clienteService";
 
 export function useCliente() {
   const [clienteId, setClienteId] = useState<number | null>(null);
@@ -11,12 +11,10 @@ export function useCliente() {
     let isMounted = true;
     const fetchCliente = async () => {
       try {
-        const supabase = createBrowserSupabaseClient();
+        // 1. Obtener usuario logueado (via Service)
+        const authUser = await getAuthUser();
         
-        // 1. Obtener usuario logueado
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
-        if (authError || !user) {
+        if (!authUser) {
           if (isMounted) {
             setLoading(false);
             setError("No estás autenticado o la sesión ha expirado.");
@@ -24,25 +22,18 @@ export function useCliente() {
           return;
         }
 
-        if (isMounted) setUser(user);
+        if (isMounted) setUser(authUser);
 
-        // 2. Buscamos primero en el esquema gestion
-        let { data: cliente, error: errorCliente } = await supabase
-          .schema("gestion")
-          .from("clientes")
-          .select("id_cliente")
-          .eq("auth_id", user.id)
-          .maybeSingle();
-
-        if (errorCliente) throw errorCliente;
+        // 2. Buscamos en gestion.clientes (via Service)
+        const cliente = await getClienteByAuthId(authUser.id);
 
         let idClienteFinal: number;
 
         if (!cliente) {
           console.warn("Cliente no existe en gestion. Creando perfil a partir de seguridad...");
-          // Si no existe en gestión, necesitamos crearlo saltando RLS (usando Server Action)
-          const { syncClienteProfile } = await import("@/app/actions/cliente");
-          const syncResult = await syncClienteProfile(user.id);
+          // Si no existe en gestión, sincronizar via Server Action (en Services)
+          const { syncClienteProfile } = await import("@/services/cliente/cliente.actions");
+          const syncResult = await syncClienteProfile(authUser.id);
           
           if (syncResult.error || !syncResult.id_cliente) {
              throw new Error(syncResult.error || "No se pudo sincronizar el perfil base de datos");

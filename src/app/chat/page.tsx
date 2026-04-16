@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function ChatPage() {
   const [mensaje, setMensaje] = useState("");
 
   const enviar = async () => {
-    await supabase.from("comunicacion.mensajes").insert({
+    const supabase = createBrowserSupabaseClient();
+    await supabase.schema("comunicacion").from("mensajes").insert({
       id_chat: 1,
       contenido: mensaje,
       remitente: "Cliente",

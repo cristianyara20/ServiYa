@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { getPqrsByCliente } from "@/services/pqrs/pqrsClientService";
 import { useCliente } from "./useCliente";
 
 export function usePQRS() {
@@ -12,16 +12,8 @@ export function usePQRS() {
     if (!clienteId) return;
     try {
       setLoading(true);
-      const supabase = createBrowserSupabaseClient();
-      const { data: pqrsData, error: pqrsError } = await supabase
-        .schema("soporte")
-        .from("pqrs")
-        .select("*")
-        .eq("id_cliente", clienteId)
-        .order("id_pqr", { ascending: false });
-
-      if (pqrsError) throw pqrsError;
-      setPqrs(pqrsData || []);
+      const pqrsData = await getPqrsByCliente(clienteId);
+      setPqrs(pqrsData);
       setError(null);
     } catch (err: any) {
       console.error("Error al obtener PQRS:", err);

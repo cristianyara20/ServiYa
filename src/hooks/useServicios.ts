@@ -1,6 +1,6 @@
 // hooks/useServicios.ts
 import { useEffect, useState } from "react";
-import { getServicios } from "@/services/serviciosService";
+import { getServicios } from "@/services/servicios/servicioClientService";
 
 export function useServicios() {
   const [servicios, setServicios] = useState<any[]>([]);

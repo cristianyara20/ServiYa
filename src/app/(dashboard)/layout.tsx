@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
+import { logoutAction } from "@/services/auth/auth.actions";
 
 export default async function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen flex flex-col bg-black">
-      <Navbar user={user} />
+      <Navbar user={user} logoutAction={logoutAction} />
       <main className="flex-1 w-full bg-black">{children}</main>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
@@ -10,6 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     const getSession = async () => {
+      const supabase = createBrowserSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
@@ -17,7 +18,8 @@ export default function Home() {
 
     getSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const supabase2 = createBrowserSupabaseClient();
+    const { data: authListener } = supabase2.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
@@ -27,6 +29,7 @@ export default function Home() {
   }, []);
 
   const handleLogout = async () => {
+    const supabase = createBrowserSupabaseClient();
     await supabase.auth.signOut();
     window.location.href = "/"; // Redirigir al home limpio
   };
