@@ -45,40 +45,40 @@ export default function CalificacionesPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-neutral-50 dark:bg-black text-neutral-900 dark:text-white overflow-hidden flex items-center justify-center p-4 transition-colors duration-300">
       <Toaster position="top-right" />
       {/* FONDO GRADIENTE */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 dark:from-black dark:via-gray-900 dark:to-black"></div>
 
       {/* EFECTO LUZ NARANJA */}
       <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-orange-500 opacity-20 blur-3xl"></div>
       <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-orange-500 opacity-20 blur-3xl"></div>
 
       {/* CONTENIDO */}
-      <div className="relative w-full max-w-md bg-gray-900/80 backdrop-blur-xl border border-gray-700 rounded-3xl p-6 shadow-2xl">
+      <div className="relative w-full max-w-md bg-white dark:bg-gray-900/80 backdrop-blur-xl border border-neutral-200 dark:border-gray-700 rounded-3xl p-6 shadow-2xl transition-colors duration-300">
 
         {/* TÍTULO */}
-        <h1 className="text-2xl font-bold text-center mb-6">
+        <h1 className="text-2xl font-bold text-center mb-6 text-neutral-900 dark:text-white">
           ⭐ Califica tu servicio
         </h1>
 
         {/* SELECT */}
         <div className="mb-4">
-          <label className="text-sm text-gray-400">
+          <label className="text-sm text-neutral-500 dark:text-gray-400">
             Seleccionar Cita
           </label>
 
           <select
-            className="w-full mt-2 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full mt-2 bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-neutral-850 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             value={citaSeleccionada}
             onChange={(e) => setCitaSeleccionada(e.target.value)}
           >
-            <option value="">Seleccione una cita completada</option>
+            <option value="" className="text-neutral-500">Seleccione una cita completada</option>
             {loading ? (
               <option disabled>Cargando citas...</option>
             ) : (
               reservas.map((r) => (
-                <option key={r.id_reserva} value={r.id_reserva}>
+                <option key={r.id_reserva} value={r.id_reserva} className="text-neutral-900 dark:text-white bg-white dark:bg-gray-800">
                   Reserva #{r.id_reserva} - {(r as any).servicios?.nombre_servicio || "Servicio"} - {new Date(r.fecha_agenda).toLocaleDateString()}
                 </option>
               ))
@@ -88,7 +88,7 @@ export default function CalificacionesPage() {
 
         {/* ESTRELLAS */}
         <div className="mb-4">
-          <p className="text-sm text-gray-400 mb-2">
+          <p className="text-sm text-neutral-500 dark:text-gray-400 mb-2">
             Calificación
           </p>
 
@@ -102,7 +102,7 @@ export default function CalificacionesPage() {
                 className={`cursor-pointer transition-all duration-200 ${
                   (hoverRating || rating) >= star
                     ? "text-orange-400 scale-110"
-                    : "text-gray-600 hover:text-orange-300"
+                    : "text-neutral-350 dark:text-neutral-600 hover:text-orange-350 dark:hover:text-orange-300"
                 }`}
               >
                 ★
@@ -118,7 +118,7 @@ export default function CalificacionesPage() {
 
         {/* TEXTAREA */}
         <div className="mb-5">
-          <label className="text-sm text-gray-400">
+          <label className="text-sm text-neutral-500 dark:text-gray-400">
             Reseña
           </label>
 
@@ -126,7 +126,7 @@ export default function CalificacionesPage() {
             value={comentario}
             onChange={(e) => setComentario(e.target.value)}
             placeholder="Cuéntanos cómo fue tu experiencia..."
-            className="w-full mt-2 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full mt-2 bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-neutral-850 dark:text-white h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-neutral-400 dark:placeholder-gray-500"
           />
         </div>
 
@@ -134,7 +134,7 @@ export default function CalificacionesPage() {
         <button
           onClick={handleSubmit}
           disabled={isPending}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-400 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all shadow-lg"
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-400 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all shadow-lg cursor-pointer"
         >
           {isPending ? "Enviando..." : "⭐ Enviar Calificación"}
         </button>

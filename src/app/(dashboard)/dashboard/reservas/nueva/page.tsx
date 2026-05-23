@@ -92,12 +92,12 @@ export default function NuevaReservaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111009] flex items-center justify-center p-4">
-      <div className="bg-[#1f1609] border border-[#2e1e0a] rounded-2xl shadow-md p-6 w-full max-w-sm space-y-4">
+    <div className="min-h-screen bg-neutral-50 dark:bg-[#111009] flex items-center justify-center p-4 transition-colors duration-300">
+      <div className="bg-white dark:bg-[#1f1609] border border-neutral-200 dark:border-[#2e1e0a] rounded-2xl shadow-md p-6 w-full max-w-sm space-y-4 transition-colors duration-300">
 
         <div className="space-y-0.5 mb-4">
           <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-bold">Citas</p>
-          <h1 className="text-xl font-black text-white uppercase tracking-tight">
+          <h1 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">
             Agendar <span className="text-orange-500">Cita</span>
           </h1>
         </div>
@@ -105,26 +105,26 @@ export default function NuevaReservaPage() {
         <input
           type="text"
           placeholder="Nombre"
-          className="w-full bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-[#ccc] outline-none transition-all"
+          className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none transition-all"
           onChange={(e) => setForm({ ...form, nombre: e.target.value })}
         />
 
         <input
           type="tel"
           placeholder="Teléfono"
-          className="w-full bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-[#ccc] outline-none transition-all"
+          className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none transition-all"
           onChange={(e) => setForm({ ...form, telefono: e.target.value })}
         />
 
         <input
           type="text"
           placeholder="Dirección"
-          className="w-full bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-[#ccc] outline-none transition-all"
+          className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none transition-all"
           onChange={(e) => setForm({ ...form, direccion: e.target.value })}
         />
 
         <div>
-          <p className="text-xs uppercase tracking-widest text-[#555] font-bold mb-2">Tipo de Servicio</p>
+          <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-2">Tipo de Servicio</p>
           <div className="grid grid-cols-2 gap-3">
             {servicios.map((s) => (
               <button
@@ -133,10 +133,10 @@ export default function NuevaReservaPage() {
                   setServicioSeleccionado(s.id);
                   setSubServicioSeleccionado(null);
                 }}
-                className={`flex flex-col items-center justify-center border rounded-xl py-4 text-sm font-bold transition-all
+                className={`flex flex-col items-center justify-center border rounded-xl py-4 text-sm font-bold transition-all cursor-pointer
                   ${servicioSeleccionado === s.id
-                    ? "border-orange-500 bg-orange-500/10 text-orange-400"
-                    : "border-[#2e1e0a] text-[#666] hover:border-orange-500/50"
+                    ? "border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                    : "border-neutral-200 dark:border-[#2e1e0a] text-neutral-500 dark:text-[#666] hover:border-orange-500/50"
                   }`}
               >
                 <span className="text-2xl mb-1">{s.icono}</span>
@@ -148,11 +148,11 @@ export default function NuevaReservaPage() {
 
         {servicioSeleccionado && (
           <div className="animate-in fade-in slide-in-from-top-1">
-            <label className="text-xs uppercase tracking-widest text-[#555] font-bold">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold">
               {subServicios[servicioSeleccionado]?.label}
             </label>
             <select
-              className="w-full mt-2 bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-[#ccc] outline-none"
+              className="w-full mt-2 bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none"
               onChange={(e) => setSubServicioSeleccionado(e.target.value)}
               value={subServicioSeleccionado || ""}
             >
@@ -167,14 +167,14 @@ export default function NuevaReservaPage() {
         <button
           onClick={handleAgendar}
           disabled={loading}
-          className="w-full bg-orange-500 hover:bg-orange-400 disabled:bg-orange-400/50 text-white font-bold py-3 rounded-full transition-all text-sm uppercase tracking-wide mt-4"
+          className="w-full bg-orange-500 hover:bg-orange-400 disabled:bg-orange-400/50 text-white font-bold py-3 rounded-full transition-all text-sm uppercase tracking-wide mt-4 cursor-pointer"
         >
           {loading ? "Guardando..." : "Guardar Cita →"}
         </button>
 
         <button
           onClick={() => router.push("/dashboard/reservas")}
-          className="w-full border border-[#2e1e0a] hover:border-orange-500/30 text-[#555] hover:text-orange-500/70 text-sm py-2.5 rounded-full transition-all font-medium mt-2"
+          className="w-full border border-neutral-200 dark:border-[#2e1e0a] hover:border-orange-500/30 text-neutral-400 dark:text-[#555] hover:text-orange-500/70 text-sm py-2.5 rounded-full transition-all font-medium mt-2 cursor-pointer"
         >
           Cancelar
         </button>

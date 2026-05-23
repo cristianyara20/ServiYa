@@ -48,22 +48,22 @@ export default function NuevaPqrsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111009] flex items-center justify-center p-4">
-      <div className="bg-[#1f1609] border border-[#2e1e0a] rounded-2xl p-6 w-full max-w-sm space-y-5">
+    <div className="min-h-screen bg-neutral-50 dark:bg-[#111009] flex items-center justify-center p-4 transition-colors duration-300">
+      <div className="bg-white dark:bg-[#1f1609] border border-neutral-200 dark:border-[#2e1e0a] rounded-2xl p-6 w-full max-w-sm space-y-5 transition-colors duration-300 shadow-sm dark:shadow-none">
 
         {/* TÍTULO */}
         <div className="space-y-0.5">
           <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-bold">
             Panel de gestión
           </p>
-          <h1 className="text-2xl font-black text-white uppercase tracking-tight">
+          <h1 className="text-2xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">
             Nueva <span className="text-orange-500">PQRS</span>
           </h1>
         </div>
 
         {/* TIPO */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-[#555] font-bold mb-3">
+          <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-3">
             Tipo de solicitud
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -71,10 +71,10 @@ export default function NuevaPqrsPage() {
               <button
                 key={label}
                 onClick={() => setForm({ ...form, tipoPqr: label })}
-                className={`border rounded-xl py-3 text-sm font-bold transition-all flex items-center justify-center gap-2
+                className={`border rounded-xl py-3 text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer
                   ${form.tipoPqr === label
-                    ? "border-orange-500 bg-orange-500/10 text-orange-400"
-                    : "border-[#2e1e0a] text-[#666] hover:border-orange-500/50 hover:text-orange-400/70"
+                    ? "border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                    : "border-neutral-200 dark:border-[#2e1e0a] text-neutral-500 dark:text-[#666] hover:border-orange-500/50 hover:text-orange-600/70 dark:hover:text-orange-400/70"
                   }`}
               >
                 <span>{icon}</span>
@@ -87,11 +87,11 @@ export default function NuevaPqrsPage() {
         {/* RESERVA */}
         {reservas.length > 0 && (
           <div>
-            <p className="text-xs uppercase tracking-widest text-[#555] font-bold mb-2">
+            <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-2">
               Reserva Asociada
             </p>
             <select
-              className="w-full bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-[#ccc] outline-none"
+              className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-neutral-800 dark:text-[#ccc] outline-none"
               value={reservaSeleccionada}
               onChange={(e) => setReservaSeleccionada(e.target.value)}
             >
@@ -107,13 +107,13 @@ export default function NuevaPqrsPage() {
 
         {/* DESCRIPCIÓN */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-[#555] font-bold mb-2">
+          <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-2">
             Descripción
           </p>
           <textarea
             placeholder="Describe tu solicitud con detalle..."
             rows={5}
-            className="w-full bg-[#111009] border border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-[#ccc] placeholder-[#444] outline-none resize-none transition-colors"
+            className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-neutral-800 dark:text-[#ccc] placeholder-neutral-400 dark:placeholder-[#444] outline-none resize-none transition-colors"
             onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
           />
         </div>
@@ -121,14 +121,14 @@ export default function NuevaPqrsPage() {
         {/* BOTONES */}
         <button
           onClick={handleSubmit}
-          className="w-full bg-orange-500 hover:bg-orange-400 active:scale-95 text-white font-bold py-3 rounded-full transition-all text-sm uppercase tracking-wide"
+          className="w-full bg-orange-500 hover:bg-orange-400 active:scale-95 text-white font-bold py-3 rounded-full transition-all text-sm uppercase tracking-wide cursor-pointer"
         >
           Enviar PQRS →
         </button>
 
         <button
           onClick={() => router.push("/dashboard/pqrs")}
-          className="w-full border border-[#2e1e0a] hover:border-orange-500/30 text-[#555] hover:text-orange-500/70 text-sm py-2.5 rounded-full transition-all font-medium"
+          className="w-full border border-neutral-200 dark:border-[#2e1e0a] hover:border-orange-500/30 text-neutral-400 dark:text-[#555] hover:text-orange-500/70 text-sm py-2.5 rounded-full transition-all font-medium cursor-pointer"
         >
           Cancelar
         </button>

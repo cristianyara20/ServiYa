@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
+import Pagination from "@/components/ui/Pagination";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('Gestión de Usuarios');
@@ -28,6 +29,35 @@ export default function AdminPanel() {
   const [fechaNacimientoInput, setFechaNacimientoInput] = useState('');
   const [rolInput, setRolInput] = useState('usuario');
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('recientes');
+  const itemsPerPage = 6;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, search, sortBy]);
+
+  const paginate = (items: any[]) => {
+    const sorted = [...items].sort((a, b) => {
+      // Determine date property depending on item type
+      const dateA = new Date(a.created_at || a.fecha_agenda || a.fecha_calificacion || a.fecha_pqr || 0).getTime();
+      const dateB = new Date(b.created_at || b.fecha_agenda || b.fecha_calificacion || b.fecha_pqr || 0).getTime();
+      
+      // Determine name/string property
+      const nameA = a.nombre || a.cliente_nombre || a.email || '';
+      const nameB = b.nombre || b.cliente_nombre || b.email || '';
+
+      if (sortBy === 'recientes') return dateB - dateA;
+      if (sortBy === 'antiguos') return dateA - dateB;
+      if (sortBy === 'az') return nameA.localeCompare(nameB);
+      if (sortBy === 'za') return nameB.localeCompare(nameA);
+      return 0;
+    });
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return sorted.slice(startIndex, startIndex + itemsPerPage);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -179,7 +209,7 @@ export default function AdminPanel() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-8 relative">
+    <div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a] text-neutral-900 dark:text-white p-6 md:p-8 relative transition-colors duration-300">
       {/* Fondos radiales */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-600/5 rounded-full blur-[100px] pointer-events-none" />
@@ -217,7 +247,7 @@ export default function AdminPanel() {
         </div>
 
         {/* GRÁFICO INFOGRÁFICO CONCÉNTRICO LLAMATIVO */}
-        <div className="bg-gradient-to-b from-[#151515] to-black border border-neutral-800 rounded-3xl p-8 flex flex-col lg:flex-row items-center justify-center gap-12 mt-8 shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-b from-neutral-100 to-white dark:from-[#151515] dark:to-black border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 flex flex-col lg:flex-row items-center justify-center gap-12 mt-8 shadow-2xl relative overflow-hidden transition-colors duration-300">
            {/* Glow de fondo */}
            <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-orange-500/10 via-purple-500/10 to-red-500/10 rounded-full blur-[80px] pointer-events-none"></div>
 
@@ -277,21 +307,21 @@ export default function AdminPanel() {
               </div>
               
               <div className="space-y-5">
-                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-orange-500/30 transition-colors cursor-default">
+                <div className="flex items-center gap-4 bg-white dark:bg-neutral-900/50 p-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 hover:border-orange-500/30 transition-colors cursor-default shadow-sm dark:shadow-none">
                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.4)]">01</div>
                    <div>
                      <div className="text-orange-500 text-xs font-black uppercase tracking-widest mb-0.5">Usuarios Activos</div>
                      <p className="text-neutral-400 text-xs leading-relaxed">El <strong className="text-white">85%</strong> de los usuarios registrados han utilizado el sistema en la última semana.</p>
                    </div>
                 </div>
-                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-purple-500/30 transition-colors cursor-default">
+                <div className="flex items-center gap-4 bg-white dark:bg-neutral-900/50 p-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 hover:border-purple-500/30 transition-colors cursor-default shadow-sm dark:shadow-none">
                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(139,92,246,0.4)]">02</div>
                    <div>
                      <div className="text-purple-400 text-xs font-black uppercase tracking-widest mb-0.5">Citas en Curso</div>
                      <p className="text-neutral-400 text-xs leading-relaxed">El <strong className="text-white">65%</strong> de las transacciones están siendo procesadas por prestadores hoy.</p>
                    </div>
                 </div>
-                <div className="flex items-center gap-4 bg-neutral-900/50 p-3 rounded-2xl border border-neutral-800 hover:border-red-500/30 transition-colors cursor-default">
+                <div className="flex items-center gap-4 bg-white dark:bg-neutral-900/50 p-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 hover:border-red-500/30 transition-colors cursor-default shadow-sm dark:shadow-none">
                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.4)]">03</div>
                    <div>
                      <div className="text-red-500 text-xs font-black uppercase tracking-widest mb-0.5">Resolución PQRS</div>
@@ -333,11 +363,11 @@ export default function AdminPanel() {
         {/* Cajas de Estadísticas */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {stats.map((s, i) => (
-            <div key={i} className="bg-[#111] border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all hover:border-neutral-600 hover:-translate-y-1">
+            <div key={i} className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all hover:border-neutral-400 dark:hover:border-neutral-600 hover:-translate-y-1 shadow-sm dark:shadow-none">
                <span className={`text-2xl mb-2 bg-gradient-to-br ${s.color} w-10 h-10 rounded-xl flex items-center justify-center shadow-lg`}>
                  {s.icon}
                </span>
-               <span className="text-2xl font-black text-white leading-none mb-1">
+               <span className="text-2xl font-black text-neutral-900 dark:text-white leading-none mb-1">
                  {s.value}
                </span>
                <span className={`text-[10px] uppercase font-bold text-neutral-400 tracking-wider`}>
@@ -348,25 +378,39 @@ export default function AdminPanel() {
         </div>
 
         {/* Pestañas (Tabs) */}
-        <div className="flex flex-wrap gap-2 justify-between border-b border-neutral-800 pb-2">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 text-sm font-bold flex items-center gap-2 transition-all border-b-2 ${
-                activeTab === tab.id
-                  ? 'border-orange-500 text-orange-500 bg-orange-500/5 rounded-t-xl'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-300 hover:bg-white/5 rounded-t-xl'
-              }`}
+        <div className="flex flex-wrap gap-4 justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2 items-end">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 text-sm font-bold flex items-center gap-2 transition-all border-b-2 ${
+                  activeTab === tab.id
+                    ? 'border-orange-500 text-orange-500 bg-orange-500/5 rounded-t-xl'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 rounded-t-xl'
+                }`}
+              >
+                <span>{tab.icon}</span> {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="pb-2">
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-orange-500 transition-colors cursor-pointer"
             >
-              <span>{tab.icon}</span> {tab.label}
-            </button>
-          ))}
+              <option value="recientes">Recientes primero</option>
+              <option value="antiguos">Antiguos primero</option>
+              <option value="az">A - Z</option>
+              <option value="za">Z - A</option>
+            </select>
+          </div>
         </div>
 
         {/* Zona de Gestión Completa de Usuarios */}
         {activeTab === 'Gestión de Usuarios' && (
-          <div className="bg-[#111] border border-neutral-800 rounded-3xl p-6 md:p-8">
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 shadow-sm dark:shadow-none transition-colors duration-300">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -408,61 +452,72 @@ export default function AdminPanel() {
               ) : filteredUsers.length === 0 ? (
                  <div className="text-center py-10 text-neutral-500 font-medium">No se encontraron usuarios.</div>
               ) : (
-                filteredUsers.map(user => (
-                  <div key={user.id} className="bg-black/50 border border-neutral-800 rounded-2xl p-5 hover:border-orange-500/50 transition-all group flex flex-col md:flex-row gap-6 relative overflow-hidden">
-                    {/* Borde izquierdo decorativo */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    {/* Avatar y Datos Personales */}
-                    <div className="flex gap-4 items-center md:w-1/3">
-                      <div className="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center justify-center text-xl font-black shrink-0">
-                        {user.email?.charAt(0).toUpperCase() || 'U'}
+                <>
+                  {paginate(filteredUsers).map(user => (
+                    <div key={user.id} className="bg-neutral-50 dark:bg-black/50 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:border-orange-500/50 transition-all group flex flex-col md:flex-row gap-6 relative overflow-hidden">
+                      {/* Borde izquierdo decorativo */}
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
+                      {/* Avatar y Datos Personales */}
+                      <div className="flex gap-4 items-center md:w-1/3">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center justify-center text-xl font-black shrink-0">
+                          {user.email?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-neutral-900 dark:text-white text-base truncate">{user.nombre || 'Usuario'}</h3>
+                          <p className="text-neutral-500 text-sm truncate">{user.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-white text-base truncate">{user.nombre || 'Usuario'}</h3>
-                        <p className="text-neutral-500 text-sm truncate">{user.email}</p>
+                      
+                      {/* Meta Info */}
+                      <div className="grid grid-cols-2 md:flex md:flex-1 gap-4 items-center text-xs text-neutral-400">
+                         <div className="flex items-center gap-1.5"><span className="text-base">📅</span> Registro: {new Date(user.created_at || Date.now()).toLocaleDateString()}</div>
+                         <div className="flex items-center gap-1.5"><span className="text-base">🕒</span> Acceso: {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'N/A'}</div>
+
+                         {/* Pills extra */}
+                         <div className="flex items-center gap-2 mt-2 md:mt-0 md:ml-auto">
+                           <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
+                             👤 {user.email?.split('@')[0]}
+                           </span>
+                           <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">
+                             {user.metrics?.citas || 0} citas
+                           </span>
+                           <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full font-bold">
+                             {user.metrics?.resenas || 0} reseñas
+                           </span>
+                           <span className="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-bold">
+                             {user.metrics?.pqrs || 0} PQRs
+                           </span>
+                         </div>
+                      </div>
+
+                      {/* Acciones */}
+                      <div className="flex items-center gap-3 md:justify-end shrink-0 pt-4 md:pt-0 border-t md:border-0 border-neutral-800">
+                         <button 
+                           onClick={() => openEditModal(user)}
+                           className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                         >
+                           <span>✏️</span> Editar
+                         </button>
+                         <button 
+                           onClick={() => handleDelete(user.id, user.db_id)}
+                           className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                         >
+                           <span>🗑️</span> Eliminar
+                         </button>
                       </div>
                     </div>
-                    
-                    {/* Meta Info */}
-                    <div className="grid grid-cols-2 md:flex md:flex-1 gap-4 items-center text-xs text-neutral-400">
-                       <div className="flex items-center gap-1.5"><span className="text-base">📅</span> Registro: {new Date(user.created_at || Date.now()).toLocaleDateString()}</div>
-                       <div className="flex items-center gap-1.5"><span className="text-base">🕒</span> Acceso: {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'N/A'}</div>
-
-                       {/* Pills extra */}
-                       <div className="flex items-center gap-2 mt-2 md:mt-0 md:ml-auto">
-                         <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
-                           👤 {user.email?.split('@')[0]}
-                         </span>
-                         <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">
-                           {user.metrics?.citas || 0} citas
-                         </span>
-                         <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full font-bold">
-                           {user.metrics?.resenas || 0} reseñas
-                         </span>
-                         <span className="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-bold">
-                           {user.metrics?.pqrs || 0} PQRs
-                         </span>
-                       </div>
+                  ))}
+                  {filteredUsers.length > itemsPerPage && (
+                    <div className="mt-6 flex justify-center">
+                      <Pagination 
+                        currentPage={currentPage} 
+                        totalPages={Math.ceil(filteredUsers.length / itemsPerPage)} 
+                        onPageChange={setCurrentPage} 
+                      />
                     </div>
-
-                    {/* Acciones */}
-                    <div className="flex items-center gap-3 md:justify-end shrink-0 pt-4 md:pt-0 border-t md:border-0 border-neutral-800">
-                       <button 
-                         onClick={() => openEditModal(user)}
-                         className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
-                       >
-                         <span>✏️</span> Editar
-                       </button>
-                       <button 
-                         onClick={() => handleDelete(user.id, user.db_id)}
-                         className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
-                       >
-                         <span>🗑️</span> Eliminar
-                       </button>
-                    </div>
-                  </div>
-                ))
+                  )}
+                </>
                )}
             </div>
           </div>
@@ -470,7 +525,7 @@ export default function AdminPanel() {
 
         {/* Zona de Gestión de Citas */}
         {activeTab === 'Gestión de Citas' && (
-          <div className="bg-[#111] border border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden">
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
              <div className="mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2"><span>🗓️</span> Registro de Citas</h2>
                 <p className="text-neutral-500 text-sm mt-1">Todas las citas agendadas en el sistema</p>
@@ -490,28 +545,39 @@ export default function AdminPanel() {
                     {allReservas.length === 0 ? (
                       <tr><td colSpan={5} className="py-10 text-center text-neutral-600">No hay citas registradas.</td></tr>
                     ) : (
-                      allReservas.map((res, i) => (
-                        <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
-                          <td className="px-4 py-4">
-                             <div className="font-bold">{res.cliente_nombre}</div>
-                             <div className="text-[10px] text-neutral-500">{res.cliente_email}</div>
-                          </td>
-                          <td className="px-4 py-4">Servicio #{res.id_servicio}</td>
-                          <td className="px-4 py-4 italic text-neutral-400">{res.direccion || 'No especificada'}</td>
-                          <td className="px-4 py-4 text-orange-400 font-mono">{new Date(res.fecha_agenda).toLocaleString()}</td>
-                          <td className="px-4 py-4 text-neutral-600">#{res.id_reserva}</td>
-                        </tr>
-                      ))
+                      <>
+                        {paginate(allReservas).map((res, i) => (
+                          <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
+                            <td className="px-4 py-4">
+                               <div className="font-bold">{res.cliente_nombre}</div>
+                               <div className="text-[10px] text-neutral-500">{res.cliente_email}</div>
+                            </td>
+                            <td className="px-4 py-4">Servicio #{res.id_servicio}</td>
+                            <td className="px-4 py-4 italic text-neutral-400">{res.direccion || 'No especificada'}</td>
+                            <td className="px-4 py-4 text-orange-400 font-mono">{new Date(res.fecha_agenda).toLocaleString()}</td>
+                            <td className="px-4 py-4 text-neutral-600">#{res.id_reserva}</td>
+                          </tr>
+                        ))}
+                      </>
                     )}
                  </tbody>
                </table>
+               {allReservas.length > itemsPerPage && (
+                  <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-2">
+                    <Pagination 
+                      currentPage={currentPage} 
+                      totalPages={Math.ceil(allReservas.length / itemsPerPage)} 
+                      onPageChange={setCurrentPage} 
+                    />
+                  </div>
+               )}
              </div>
           </div>
         )}
 
         {/* Zona de Gestión de Reseñas */}
         {activeTab === 'Gestión de Reseñas' && (
-          <div className="bg-[#111] border border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden">
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
              <div className="mb-6 flex justify-between items-end">
                 <div>
                   <h2 className="text-xl font-bold flex items-center gap-2"><span>⭐</span> Valoraciones y Reseñas</h2>
@@ -525,42 +591,53 @@ export default function AdminPanel() {
                 {allReviews.length === 0 ? (
                   <div className="col-span-full py-10 text-center text-neutral-600">No hay reseñas por ahora.</div>
                 ) : (
-                  allReviews.map((rev, i) => (
-                    <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
-                       <div className="absolute right-4 top-4 text-3xl font-black text-yellow-500/10 group-hover:text-yellow-500/30 transition-opacity">{rev.puntuacion}.0</div>
-                       
-                       {/* Cliente */}
-                       <div className="flex items-center gap-2 mb-3">
-                         <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
-                           {rev.cliente_nombre?.charAt(0)?.toUpperCase() || '?'}
+                  <>
+                    {paginate(allReviews).map((rev, i) => (
+                      <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
+                         <div className="absolute right-4 top-4 text-3xl font-black text-yellow-500/10 group-hover:text-yellow-500/30 transition-opacity">{rev.puntuacion}.0</div>
+                         
+                         {/* Cliente */}
+                         <div className="flex items-center gap-2 mb-3">
+                           <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
+                             {rev.cliente_nombre?.charAt(0)?.toUpperCase() || '?'}
+                           </div>
+                           <div>
+                             <div className="text-sm font-bold text-white">{rev.cliente_nombre}</div>
+                             <div className="text-[10px] text-neutral-500">{rev.cliente_email}</div>
+                           </div>
                          </div>
-                         <div>
-                           <div className="text-sm font-bold text-white">{rev.cliente_nombre}</div>
-                           <div className="text-[10px] text-neutral-500">{rev.cliente_email}</div>
-                         </div>
-                       </div>
 
-                       {/* Estrellas + puntuación */}
-                       <div className="flex items-center gap-2 mb-3">
-                         <div className="flex gap-0.5">
-                           {[...Array(5)].map((_, idx) => (
-                             <span key={idx} className={idx < rev.puntuacion ? 'text-yellow-500 text-base' : 'text-neutral-700 text-base'}>★</span>
-                           ))}
+                         {/* Estrellas + puntuación */}
+                         <div className="flex items-center gap-2 mb-3">
+                           <div className="flex gap-0.5">
+                             {[...Array(5)].map((_, idx) => (
+                               <span key={idx} className={idx < rev.puntuacion ? 'text-yellow-500 text-base' : 'text-neutral-700 text-base'}>★</span>
+                             ))}
+                           </div>
+                           <span className="text-xs text-neutral-400 font-mono">{rev.puntuacion}/5</span>
                          </div>
-                         <span className="text-xs text-neutral-400 font-mono">{rev.puntuacion}/5</span>
-                       </div>
 
-                       {/* Comentario */}
-                       <p className="text-sm text-neutral-300 italic leading-relaxed">"{rev.comentario || 'Sin comentario escrito.'}"</p>
+                         {/* Comentario */}
+                         <p className="text-sm text-neutral-300 italic leading-relaxed">"{rev.comentario || 'Sin comentario escrito.'}"</p>
 
-                       {/* Fecha */}
-                       {rev.fecha_calificacion && (
-                         <div className="text-[10px] text-neutral-600 mt-3">
-                           {new Date(rev.fecha_calificacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
-                         </div>
-                       )}
-                    </div>
-                  ))
+                         {/* Fecha */}
+                         {rev.fecha_calificacion && (
+                           <div className="text-[10px] text-neutral-600 mt-3">
+                             {new Date(rev.fecha_calificacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                           </div>
+                         )}
+                      </div>
+                    ))}
+                    {allReviews.length > itemsPerPage && (
+                      <div className="col-span-full mt-4 flex justify-center">
+                        <Pagination 
+                          currentPage={currentPage} 
+                          totalPages={Math.ceil(allReviews.length / itemsPerPage)} 
+                          onPageChange={setCurrentPage} 
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
              </div>
           </div>
@@ -568,7 +645,7 @@ export default function AdminPanel() {
 
         {/* Zona de Gestión de PQRs */}
         {activeTab === 'Gestión de PQRs' && (
-          <div className="bg-[#111] border border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden">
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
              <div className="mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
                 <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos</p>
@@ -587,28 +664,39 @@ export default function AdminPanel() {
                     {allPQRs.length === 0 ? (
                       <tr><td colSpan={4} className="py-10 text-center text-neutral-600">No hay PQRs registrados.</td></tr>
                     ) : (
-                      allPQRs.map((pqr, i) => (
-                        <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
-                          <td className="px-4 py-4">
-                             <div className="font-bold">{pqr.cliente_nombre}</div>
-                          </td>
-                          <td className="px-4 py-4">
-                             <span className="bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold block w-fit mb-1">{pqr.tipo_pqr}</span>
-                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                               pqr.estado_pqr === 'Resuelto' || pqr.estado_pqr === 'Cerrado' 
-                               ? 'bg-green-500/20 text-green-500' 
-                               : 'bg-orange-500/20 text-orange-500 animate-pulse'
-                             }`}>
-                                {pqr.estado_pqr}
-                             </span>
-                          </td>
-                          <td className="px-4 py-4 text-neutral-400 max-w-xs truncate">{pqr.descripcion || 'Sin descripción.'}</td>
-                          <td className="px-4 py-4 text-neutral-600 text-xs font-mono">{new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString()}</td>
-                        </tr>
-                      ))
+                      <>
+                        {paginate(allPQRs).map((pqr, i) => (
+                          <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
+                            <td className="px-4 py-4">
+                               <div className="font-bold">{pqr.cliente_nombre}</div>
+                            </td>
+                            <td className="px-4 py-4">
+                               <span className="bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold block w-fit mb-1">{pqr.tipo_pqr}</span>
+                               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                 pqr.estado_pqr === 'Resuelto' || pqr.estado_pqr === 'Cerrado' 
+                                 ? 'bg-green-500/20 text-green-500' 
+                                 : 'bg-orange-500/20 text-orange-500 animate-pulse'
+                               }`}>
+                                  {pqr.estado_pqr}
+                               </span>
+                            </td>
+                            <td className="px-4 py-4 text-neutral-400 max-w-xs truncate">{pqr.descripcion || 'Sin descripción.'}</td>
+                            <td className="px-4 py-4 text-neutral-600 text-xs font-mono">{new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </>
                     )}
                  </tbody>
                </table>
+               {allPQRs.length > itemsPerPage && (
+                  <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-2">
+                    <Pagination 
+                      currentPage={currentPage} 
+                      totalPages={Math.ceil(allPQRs.length / itemsPerPage)} 
+                      onPageChange={setCurrentPage} 
+                    />
+                  </div>
+               )}
              </div>
           </div>
         )}

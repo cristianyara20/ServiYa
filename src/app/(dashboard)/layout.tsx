@@ -11,9 +11,9 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-black transition-colors duration-300">
       <Navbar user={user} logoutAction={logoutAction} />
-      <main className="flex-1 w-full bg-black">{children}</main>
+      <main className="flex-1 w-full bg-neutral-50 dark:bg-black transition-colors duration-300">{children}</main>
     </div>
   );
 }

@@ -2,18 +2,18 @@ import RegisterForm from "./RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-neutral-50 dark:bg-[#0f0f0f] flex items-center justify-center px-4 transition-colors duration-300">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#f97316_0%,_transparent_50%)] opacity-20 pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold text-neutral-900 dark:text-white">
             <span className="text-orange-500">S</span>erviya
           </h1>
-          <p className="text-neutral-400 mt-2 text-sm">Crea tu cuenta</p>
+          <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm">Crea tu cuenta</p>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 transition-colors duration-300">
           <RegisterForm />
         </div>
 
