@@ -30,15 +30,15 @@ export default function RecuperarPage() {
     };
 
     return (
-        <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4">
+        <main className="min-h-screen bg-neutral-50 dark:bg-[#0f0f0f] flex items-center justify-center px-4 transition-colors duration-300">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#f97316_0%,_transparent_50%)] opacity-20 pointer-events-none" />
 
             <form
                 onSubmit={handleReset}
-                className="relative z-10 bg-neutral-900 border border-neutral-800 p-8 rounded-2xl w-full max-w-md space-y-6 shadow-2xl"
+                className="relative z-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 rounded-2xl w-full max-w-md space-y-6 shadow-2xl transition-colors duration-300"
             >
                 <div className="text-center space-y-2">
-                    <h1 className="text-2xl font-bold text-white uppercase tracking-tight">
+                    <h1 className="text-2xl font-bold text-neutral-900 dark:text-white uppercase tracking-tight">
                         Recuperar <span className="text-orange-500">Cuenta</span>
                     </h1>
                     <p className="text-neutral-500 text-xs">Te enviaremos un enlace seguro para cambiar tu clave.</p>
@@ -61,7 +61,7 @@ export default function RecuperarPage() {
                             type="email"
                             placeholder="Ingresa tu correo electrónico"
                             required
-                            className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-all text-sm"
+                            className="w-full bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-neutral-900 dark:text-white outline-none focus:border-orange-500 transition-all text-sm"
                             onChange={(e) => setEmail(e.target.value)}
                         />
                         <button

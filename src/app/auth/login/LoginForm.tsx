@@ -82,11 +82,11 @@ export default function LoginForm() {
       )}
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-neutral-300">Entrar como</label>
+        <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Entrar como</label>
         <select
           value={rol}
           onChange={(e) => setRol(e.target.value)}
-          className="bg-neutral-800 border border-neutral-700 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors appearance-none cursor-pointer"
+          className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors appearance-none cursor-pointer"
         >
           <option value="usuario">Usuario / Cliente</option>
           <option value="prestador">Prestador de Servicios</option>
@@ -95,26 +95,26 @@ export default function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-neutral-300">Correo</label>
+        <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Correo</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder="tucorreo@email.com"
-          className="bg-neutral-800 border border-neutral-700 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 placeholder:text-neutral-500 transition-colors"
+          className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-colors"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-neutral-300">Contraseña</label>
+        <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Contraseña</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           placeholder="••••••••"
-          className="bg-neutral-800 border border-neutral-700 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 placeholder:text-neutral-500 transition-colors"
+          className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-colors"
         />
       </div>
 

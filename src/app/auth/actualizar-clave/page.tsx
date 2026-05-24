@@ -81,8 +81,8 @@ export default function ActualizarClavePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4 text-white">
-      <form onSubmit={handleUpdate} className="bg-neutral-900 p-8 rounded-2xl border border-neutral-800 w-full max-w-md space-y-6">
+    <main className="min-h-screen bg-neutral-50 dark:bg-[#0f0f0f] flex items-center justify-center px-4 text-neutral-900 dark:text-white transition-colors duration-300">
+      <form onSubmit={handleUpdate} className="bg-white dark:bg-neutral-900 p-8 rounded-2xl border border-neutral-200 dark:border-neutral-800 w-full max-w-md space-y-6 transition-colors duration-300">
         <h1 className="text-2xl font-bold text-center">
           Nueva <span className="text-orange-500">Contraseña</span>
         </h1>
@@ -107,7 +107,7 @@ export default function ActualizarClavePage() {
             placeholder="Nueva contraseña"
             required
             disabled={!sesionLista}
-            className="w-full bg-black border border-neutral-800 p-3 rounded-xl outline-none focus:border-orange-500 disabled:opacity-50"
+            className="w-full bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-3 rounded-xl outline-none focus:border-orange-500 disabled:opacity-50 text-neutral-900 dark:text-white"
             onChange={(e) => setPassword(e.target.value)}
           />
           <input
@@ -115,7 +115,7 @@ export default function ActualizarClavePage() {
             placeholder="Repetir contraseña"
             required
             disabled={!sesionLista}
-            className="w-full bg-black border border-neutral-800 p-3 rounded-xl outline-none focus:border-orange-500 disabled:opacity-50"
+            className="w-full bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 p-3 rounded-xl outline-none focus:border-orange-500 disabled:opacity-50 text-neutral-900 dark:text-white"
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>

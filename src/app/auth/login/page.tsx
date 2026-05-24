@@ -3,18 +3,18 @@ import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-neutral-50 dark:bg-[#0f0f0f] flex items-center justify-center px-4 transition-colors duration-300">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#f97316_0%,_transparent_50%)] opacity-20 pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold text-neutral-900 dark:text-white">
             <span className="text-orange-500">S</span>erviya
           </h1>
-          <p className="text-neutral-400 mt-2 text-sm">Inicia sesión para continuar</p>
+          <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm">Inicia sesión para continuar</p>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-2xl transition-colors duration-300">
           <LoginForm />
 
           <div className="mt-6 space-y-4 text-center">
@@ -29,8 +29,8 @@ export default function LoginPage() {
             </div>
 
             {/* Separador visual opcional */}
-            <div className="border-t border-neutral-800 pt-4">
-              <p className="text-sm text-neutral-400">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
                 ¿No tienes una cuenta?{" "}
                 <Link
                   href="/auth/register"
