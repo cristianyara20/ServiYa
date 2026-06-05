@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
 import Pagination from "@/components/ui/Pagination";
+import ReportesPanel from './ReportesPanel';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('Gestión de Usuarios');
@@ -206,6 +207,7 @@ export default function AdminPanel() {
     { label: `Gestión de Citas (${globalStats?.citas || 0})`, id: 'Gestión de Citas', icon: '🗓️' },
     { label: `Gestión de Reseñas (${globalStats?.resenas || 0})`, id: 'Gestión de Reseñas', icon: '⭐' },
     { label: `Gestión de PQRs (${globalStats?.pqrs || 0})`, id: 'Gestión de PQRs', icon: '💬' },
+    { label: 'Reportes y Analíticas', id: 'Reportes', icon: '📊' },
   ];
 
   return (
@@ -697,9 +699,12 @@ export default function AdminPanel() {
                     />
                   </div>
                )}
-             </div>
-          </div>
+              </div>
+           </div>
         )}
+
+        {/* Zona de Reportes y Analíticas */}
+        {activeTab === 'Reportes' && <ReportesPanel />}
       </div>
 
        {/* MODAL CREAR USER */}
