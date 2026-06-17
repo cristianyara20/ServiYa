@@ -74,7 +74,8 @@ export default function AdminPanel() {
       if (!silent) setApiLoadingPrestadores(true);
       const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
       
       const res = await fetch(`${baseUrl}/operativo/prestadores`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
@@ -95,7 +96,8 @@ export default function AdminPanel() {
       setApiLoadingHistorial(true);
       const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
 
       const res = await fetch(`${baseUrl}/operativo/historial-servicios`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
