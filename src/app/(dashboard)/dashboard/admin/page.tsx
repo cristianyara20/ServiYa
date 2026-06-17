@@ -803,9 +803,9 @@ export default function AdminPanel() {
                   <h2 className="text-xl font-bold flex items-center gap-2"><span>🔧</span> Prestadores de Servicios</h2>
                   <p className="text-neutral-500 text-sm mt-1">Disponibilidad y estado en tiempo real consultado mediante la API de Go</p>
                 </div>
-                <button onClick={fetchApiPrestadores} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
-                  🔄 Refrescar
-                </button>
+                 <button onClick={() => fetchApiPrestadores(false)} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                   🔄 Refrescar
+                 </button>
              </div>
              
              {apiLoadingPrestadores ? (
