@@ -5,6 +5,7 @@ import { getPrestadorAuthUser, subscribeReservasChanges } from '@/services/prest
 import { getPrestadorDashboardData, updateBookingStatus, updatePrestadorAvailability } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
 import Pagination from "@/components/ui/Pagination";
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export default function PrestadorDashboard() {
   const [data, setData] = useState<any>(null);
@@ -50,6 +51,38 @@ export default function PrestadorDashboard() {
     const result = await updateBookingStatus(bookingId, status, prestadorId);
     if (result.success) {
       toast.success(`Servicio ${status} correctamente`, { id: loadingToast });
+      
+      // NOTIFICACIÓN A TRAVÉS DE LA API DE GO:
+      if (status === 'aceptada' && prestadorId) {
+        try {
+          const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+          const token = session?.access_token;
+          const apiBaseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+          
+          const bookingData = data?.reservas?.find((r: any) => r.id_reserva === bookingId);
+          const clienteId = bookingData?.id_cliente;
+
+          if (clienteId) {
+            await fetch(`${apiBaseUrl}/operativo/notificar-aceptacion`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+              },
+              body: JSON.stringify({
+                id_reserva: bookingId,
+                id_cliente: clienteId,
+                id_prestador: prestadorId,
+                estado_reserva: 'aceptada'
+              })
+            });
+            toast.success("¡Cliente notificado por la API de Go!", { duration: 4000 });
+          }
+        } catch (err) {
+          console.error("Error al notificar por la API:", err);
+        }
+      }
+
       fetchData();
     } else {
       toast.error("Error: " + result.error, { id: loadingToast });

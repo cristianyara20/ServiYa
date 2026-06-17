@@ -301,3 +301,28 @@ export async function createAdminUser(email: string, password?: string, metadata
   revalidatePath('/dashboard/admin');
   return { success: true, user: data.user };
 }
+
+/**
+ * ELIMINA UNA RESEÑA DEL SISTEMA
+ */
+export async function deleteReview(idReserva: number) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.user_metadata?.rol !== 'admin') {
+    return { error: 'No autorizado. Solo los administradores pueden eliminar reseñas.' };
+  }
+
+  const { error } = await supabaseAdmin
+    .schema('gestion')
+    .from('calificaciones')
+    .delete()
+    .eq('id_reserva', idReserva);
+
+  if (error) {
+    console.error("Error deleting review:", error);
+    return { error: `Error DB: ${error.message}` };
+  }
+
+  revalidatePath('/dashboard/admin');
+  return { success: true };
+}

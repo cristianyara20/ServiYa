@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser } from './actions';
+import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser, deleteReview } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
 import Pagination from "@/components/ui/Pagination";
 import ReportesPanel from './ReportesPanel';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('Gestión de Usuarios');
@@ -20,6 +21,14 @@ export default function AdminPanel() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
+  
+  // API Operativa state
+  const [apiPrestadores, setApiPrestadores] = useState<any[]>([]);
+  const [apiHistorial, setApiHistorial] = useState<any[]>([]);
+  const [apiLoadingPrestadores, setApiLoadingPrestadores] = useState(false);
+  const [apiLoadingHistorial, setApiLoadingHistorial] = useState(false);
+  const [isPrestadorHistoryModalOpen, setIsPrestadorHistoryModalOpen] = useState(false);
+  const [selectedPrestadorForHistory, setSelectedPrestadorForHistory] = useState<any>(null);
   
   // Search and Forms state
   const [search, setSearch] = useState('');
@@ -60,6 +69,48 @@ export default function AdminPanel() {
     return sorted.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const fetchApiPrestadores = async (silent = false) => {
+    try {
+      if (!silent) setApiLoadingPrestadores(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      
+      const res = await fetch(`${baseUrl}/operativo/prestadores`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const prestadores = await res.json();
+        setApiPrestadores(prestadores || []);
+      }
+    } catch (err) {
+      console.error("Error fetching prestadores from Go API:", err);
+    } finally {
+      if (!silent) setApiLoadingPrestadores(false);
+    }
+  };
+
+  const fetchApiHistorial = async () => {
+    try {
+      setApiLoadingHistorial(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+
+      const res = await fetch(`${baseUrl}/operativo/historial-servicios`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const historial = await res.json();
+        setApiHistorial(historial || []);
+      }
+    } catch (err) {
+      console.error("Error fetching services history from Go API:", err);
+    } finally {
+      setApiLoadingHistorial(false);
+    }
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -79,7 +130,23 @@ export default function AdminPanel() {
 
   useEffect(() => {
     fetchUsers();
+    fetchApiPrestadores();
+    fetchApiHistorial();
   }, []);
+
+  // Poll prestadores state to simulate real-time updates every 8 seconds
+  useEffect(() => {
+    if (activeTab === 'Gestión de Prestadores') {
+      const interval = setInterval(() => fetchApiPrestadores(true), 8000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'Historial de Servicios') {
+      fetchApiHistorial();
+    }
+  }, [activeTab]);
 
   const handleDelete = async (id: string, db_id?: any) => {
     if (confirm('¿Estás seguro de que deseas eliminar este usuario completamente?')) {
@@ -94,6 +161,19 @@ export default function AdminPanel() {
         }
       } catch (err: any) {
         toast.error(`Error: ${err.message}`, { id: loadingToast });
+      }
+    }
+  };
+
+  const handleDeleteReviewClick = async (idReserva: number) => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta reseña permanentemente?')) {
+      const loadingToast = toast.loading('Eliminando reseña...');
+      const res = await deleteReview(idReserva);
+      if (res.error) {
+        toast.error(res.error, { id: loadingToast });
+      } else {
+        toast.success('Reseña eliminada con éxito.', { id: loadingToast });
+        fetchUsers(); // Recarga la lista
       }
     }
   };
@@ -204,6 +284,8 @@ export default function AdminPanel() {
 
   const tabs = [
     { label: `Gestión de Usuarios (${globalStats?.usuarios || users.length})`, id: 'Gestión de Usuarios', icon: '👥' },
+    { label: `Gestión de Prestadores`, id: 'Gestión de Prestadores', icon: '🔧' },
+    { label: `Historial de Servicios`, id: 'Historial de Servicios', icon: '📜' },
     { label: `Gestión de Citas (${globalStats?.citas || 0})`, id: 'Gestión de Citas', icon: '🗓️' },
     { label: `Gestión de Reseñas (${globalStats?.resenas || 0})`, id: 'Gestión de Reseñas', icon: '⭐' },
     { label: `Gestión de PQRs (${globalStats?.pqrs || 0})`, id: 'Gestión de PQRs', icon: '💬' },
@@ -598,6 +680,16 @@ export default function AdminPanel() {
                       <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
                          <div className="absolute right-4 top-4 text-3xl font-black text-yellow-500/10 group-hover:text-yellow-500/30 transition-opacity">{rev.puntuacion}.0</div>
                          
+                         <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button 
+                             onClick={() => handleDeleteReviewClick(rev.id_reserva)}
+                             className="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-full transition-colors"
+                             title="Eliminar reseña"
+                           >
+                             🗑️
+                           </button>
+                         </div>
+                         
                          {/* Cliente */}
                          <div className="flex items-center gap-2 mb-3">
                            <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
@@ -701,6 +793,147 @@ export default function AdminPanel() {
                )}
               </div>
            </div>
+        )}
+
+        {/* Zona de Gestión de Prestadores (Desde la API de Go en Tiempo Real) */}
+        {activeTab === 'Gestión de Prestadores' && (
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>🔧</span> Prestadores de Servicios</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Disponibilidad y estado en tiempo real consultado mediante la API de Go</p>
+                </div>
+                <button onClick={fetchApiPrestadores} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
+                  🔄 Refrescar
+                </button>
+             </div>
+             
+             {apiLoadingPrestadores ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiPrestadores.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay prestadores registrados en el sistema.</div>
+             ) : (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {apiPrestadores.map((prestador) => (
+                   <div key={prestador.id_prestador} className="bg-neutral-50 dark:bg-black/50 border border-neutral-200 dark:border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-orange-500/30 transition-all">
+                     <div className="flex justify-between items-start mb-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-sm font-black text-orange-500">
+                           {prestador.nombre?.charAt(0).toUpperCase()}
+                         </div>
+                         <div>
+                           <h4 className="font-bold text-sm text-neutral-900 dark:text-white leading-tight capitalize">{prestador.nombre} {prestador.apellido}</h4>
+                           <span className="text-[10px] text-neutral-500 font-mono">ID: #{prestador.id_prestador}</span>
+                         </div>
+                       </div>
+                       
+                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                         prestador.estado_disponibilidad === 'disponible' ? 'bg-green-500/20 text-green-500' :
+                         prestador.estado_disponibilidad === 'ocupado' ? 'bg-orange-500/20 text-orange-500 animate-pulse' :
+                         'bg-red-500/20 text-red-500'
+                       }`}>
+                         ● {prestador.estado_disponibilidad}
+                       </span>
+                     </div>
+                     
+                     <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 text-xs space-y-2 mt-3">
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Correo:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 font-semibold">{prestador.correo}</span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Calificación:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 font-bold">⭐ {prestador.calificacion_promedio?.toFixed(1) || '5.0'}</span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Experiencia:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 italic">{prestador.experiencia || 'No especificada'}</span>
+                       </div>
+                     </div>
+                     <button
+                       onClick={() => {
+                         setSelectedPrestadorForHistory(prestador);
+                         setIsPrestadorHistoryModalOpen(true);
+                       }}
+                       className="mt-4 w-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 font-bold text-xs py-2 rounded-xl transition-colors"
+                     >
+                       Ver Reservas Atendidas
+                     </button>
+                   </div>
+                 ))}
+               </div>
+             )}
+          </div>
+        )}
+
+        {/* Zona de Historial de Servicios Completo (Desde la API de Go) */}
+        {activeTab === 'Historial de Servicios' && (
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>📜</span> Historial Completo de Servicios</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Lista consolidada de todos los servicios solicitados y atendidos en la plataforma mediante la API de Go</p>
+                </div>
+                <button onClick={fetchApiHistorial} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
+                  🔄 Refrescar
+                </button>
+             </div>
+             
+             {apiLoadingHistorial ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiHistorial.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay registros en el historial de servicios.</div>
+             ) : (
+               <div className="overflow-x-auto">
+                 <table className="w-full text-left border-collapse">
+                   <thead>
+                     <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-500 text-xs uppercase font-bold tracking-wider">
+                       <th className="px-6 py-4">ID Reserva</th>
+                       <th className="px-6 py-4">Servicio</th>
+                       <th className="px-6 py-4">Cliente</th>
+                       <th className="px-6 py-4">Fecha Agenda</th>
+                       <th className="px-6 py-4">Dirección</th>
+                       <th className="px-6 py-4">Estado</th>
+                     </tr>
+                   </thead>
+                   <tbody className="text-sm">
+                     {paginate(apiHistorial).map((item) => (
+                       <tr key={item.id_reserva} className="border-b border-neutral-100 dark:border-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
+                         <td className="px-6 py-4 font-mono font-bold text-neutral-500">#{item.id_reserva}</td>
+                         <td className="px-6 py-4 font-bold">{item.nombre_servicio}</td>
+                         <td className="px-6 py-4">
+                           <div className="font-semibold text-neutral-950 dark:text-white capitalize">{item.nombre_cliente}</div>
+                           <span className="text-[10px] text-neutral-500 font-mono">ID Cliente: #{item.id_cliente}</span>
+                         </td>
+                         <td className="px-6 py-4 text-neutral-600 font-mono text-xs">{item.fecha_agenda}</td>
+                         <td className="px-6 py-4 italic text-neutral-500 max-w-xs truncate">{item.direccion || 'No especificada'}</td>
+                         <td className="px-6 py-4">
+                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                             item.estado_reserva === 'pendiente' ? 'bg-blue-500/20 text-blue-500' :
+                             item.estado_reserva === 'aceptada' ? 'bg-yellow-500/20 text-yellow-500' :
+                             item.estado_reserva === 'terminada' ? 'bg-green-500/20 text-green-500' :
+                             'bg-red-500/20 text-red-500'
+                           }`}>
+                             {item.estado_reserva}
+                           </span>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+                 
+                 {apiHistorial.length > itemsPerPage && (
+                   <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-4">
+                     <Pagination 
+                       currentPage={currentPage} 
+                       totalPages={Math.ceil(apiHistorial.length / itemsPerPage)} 
+                       onPageChange={setCurrentPage} 
+                     />
+                   </div>
+                 )}
+               </div>
+             )}
+          </div>
         )}
 
         {/* Zona de Reportes y Analíticas */}
@@ -822,6 +1055,70 @@ export default function AdminPanel() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* MODAL HISTORIAL PRESTADOR */}
+      {isPrestadorHistoryModalOpen && selectedPrestadorForHistory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-3xl p-6 shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">
+                Reservas Atendidas: <span className="text-orange-500 capitalize">{selectedPrestadorForHistory.nombre} {selectedPrestadorForHistory.apellido}</span>
+              </h3>
+              <button onClick={() => setIsPrestadorHistoryModalOpen(false)} className="text-neutral-500 hover:text-white text-2xl font-bold cursor-pointer">
+                &times;
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase font-bold tracking-wider">
+                    <th className="py-3 px-4">Servicio</th>
+                    <th className="py-3 px-4">Cliente</th>
+                    <th className="py-3 px-4">Fecha</th>
+                    <th className="py-3 px-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {apiHistorial.filter(h => h.id_prestador != null && Number(h.id_prestador) === Number(selectedPrestadorForHistory.id_prestador)).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-10 text-center text-neutral-500">
+                        Este prestador no tiene reservas registradas en el historial (o falta actualizar la API de Go).
+                      </td>
+                    </tr>
+                  ) : (
+                    apiHistorial.filter(h => h.id_prestador != null && Number(h.id_prestador) === Number(selectedPrestadorForHistory.id_prestador)).map((res) => (
+                      <tr key={res.id_reserva} className="border-b border-neutral-800/50 hover:bg-white/5 transition-colors">
+                        <td className="py-3 px-4 font-bold">{res.nombre_servicio || res.descripcion || `Servicio #${res.id_servicio}`}</td>
+                        <td className="py-3 px-4 text-neutral-300">{res.nombre_cliente || `Cliente #${res.id_cliente}`}</td>
+                        <td className="py-3 px-4 text-neutral-500 font-mono text-xs">{new Date(res.fecha_agenda).toLocaleString()}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            res.estado_reserva === 'terminada' ? 'bg-green-500/20 text-green-500' : 
+                            res.estado_reserva === 'rechazada' ? 'bg-red-500/20 text-red-500' :
+                            'bg-orange-500/20 text-orange-500'
+                          }`}>
+                            {res.estado_reserva}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-neutral-800 flex justify-end">
+              <button 
+                onClick={() => setIsPrestadorHistoryModalOpen(false)} 
+                className="bg-neutral-800 hover:bg-neutral-700 text-white px-6 py-2 rounded-xl font-bold transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
