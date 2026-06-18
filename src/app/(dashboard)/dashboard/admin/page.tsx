@@ -14,6 +14,7 @@ export default function AdminPanel() {
   const [allReservas, setAllReservas] = useState<any[]>([]);
   const [allPQRs, setAllPQRs] = useState<any[]>([]);
   const [allReviews, setAllReviews] = useState<any[]>([]);
+  const [apiLoadingReviews, setApiLoadingReviews] = useState(false);
   const [loading, setLoading] = useState(true);
   
   // Modals state
@@ -113,6 +114,28 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchApiReviews = async () => {
+    try {
+      setApiLoadingReviews(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/reportes/calificaciones`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const reviewsData = await res.json();
+        setAllReviews(reviewsData || []);
+      }
+    } catch (err) {
+      console.error("Error fetching reviews from Go API:", err);
+    } finally {
+      setApiLoadingReviews(false);
+    }
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -121,7 +144,7 @@ export default function AdminPanel() {
       setGlobalStats(data.stats);
       setAllReservas(data.allReservas || []);
       setAllPQRs(data.allPQRs || []);
-      setAllReviews(data.allReviews || []);
+      // Reseñas ahora se traen de la API de Go
       setDebugInfo(data.debug);
     } catch (e) {
       console.error(e);
@@ -134,6 +157,7 @@ export default function AdminPanel() {
     fetchUsers();
     fetchApiPrestadores();
     fetchApiHistorial();
+    fetchApiReviews();
   }, []);
 
   // Poll prestadores state to simulate real-time updates every 8 seconds
@@ -175,7 +199,7 @@ export default function AdminPanel() {
         toast.error(res.error, { id: loadingToast });
       } else {
         toast.success('Reseña eliminada con éxito.', { id: loadingToast });
-        fetchUsers(); // Recarga la lista
+        fetchApiReviews(); // Recarga la lista desde la API
       }
     }
   };
@@ -276,7 +300,7 @@ export default function AdminPanel() {
   const stats = [
     { label: 'Usuarios',      value: globalStats?.usuarios || users.length,   icon: '👥', color: 'from-blue-600 to-blue-800' },
     { label: 'Citas',         value: globalStats?.citas || 0,                 icon: '🗓️', color: 'from-purple-600 to-purple-800' },
-    { label: 'Reseñas',       value: globalStats?.resenas || 0,               icon: '⭐', color: 'from-yellow-500 to-orange-500' },
+    { label: 'Reseñas',       value: allReviews.length,                       icon: '⭐', color: 'from-yellow-500 to-orange-500' },
     { label: 'PQRs',          value: globalStats?.pqrs || 0,                  icon: '💬', color: 'from-green-500 to-green-700' },
     { label: 'Promedio',      value: globalStats?.promedio || '0.0',          icon: '📊', color: 'from-orange-500 to-red-500' },
     { label: 'Emergencias',   value: globalStats?.emergencias || 0,           icon: '🚨', color: 'from-red-600 to-red-800' },
@@ -289,7 +313,7 @@ export default function AdminPanel() {
     { label: `Gestión de Prestadores`, id: 'Gestión de Prestadores', icon: '🔧' },
     { label: `Historial de Servicios`, id: 'Historial de Servicios', icon: '📜' },
     { label: `Gestión de Citas (${globalStats?.citas || 0})`, id: 'Gestión de Citas', icon: '🗓️' },
-    { label: `Gestión de Reseñas (${globalStats?.resenas || 0})`, id: 'Gestión de Reseñas', icon: '⭐' },
+    { label: `Gestión de Reseñas (${allReviews.length})`, id: 'Gestión de Reseñas', icon: '⭐' },
     { label: `Gestión de PQRs (${globalStats?.pqrs || 0})`, id: 'Gestión de PQRs', icon: '💬' },
     { label: 'Reportes y Analíticas', id: 'Reportes', icon: '📊' },
   ];
@@ -674,7 +698,9 @@ export default function AdminPanel() {
                 </span>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {allReviews.length === 0 ? (
+                {apiLoadingReviews ? (
+                  <div className="col-span-full py-10 text-center text-orange-500 font-bold animate-pulse">Cargando reseñas desde la API...</div>
+                ) : allReviews.length === 0 ? (
                   <div className="col-span-full py-10 text-center text-neutral-600">No hay reseñas por ahora.</div>
                 ) : (
                   <>
@@ -695,11 +721,18 @@ export default function AdminPanel() {
                          {/* Cliente */}
                          <div className="flex items-center gap-2 mb-3">
                            <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
-                             {rev.cliente_nombre?.charAt(0)?.toUpperCase() || '?'}
+                             {rev.nombre_cliente?.charAt(0)?.toUpperCase() || '?'}
                            </div>
                            <div>
-                             <div className="text-sm font-bold text-white">{rev.cliente_nombre}</div>
-                             <div className="text-[10px] text-neutral-500">{rev.cliente_email}</div>
+                             <div className="text-sm font-bold text-white">{rev.nombre_cliente || 'Cliente'}</div>
+                             <div className="text-[10px] text-neutral-500">Servicio: {rev.nombre_servicio || 'N/A'}</div>
+                           </div>
+                         </div>
+
+                         {/* Prestador */}
+                         <div className="flex items-center gap-2 mb-3">
+                           <div className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">
+                             Prestador: {rev.nombre_prestador || 'N/A'}
                            </div>
                          </div>
 
