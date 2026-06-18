@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 import { ReservaRepository } from "./reservas.repository";
 import { ReservaService } from "./reserva.service";
@@ -72,3 +73,47 @@ export async function deleteReservaAction(
 
   return { success: true, message: "Reserva eliminada" };
 }
+
+export async function cancelarReservaAction(
+  _prevState: FormState | null,
+  formData: FormData
+): Promise<FormState> {
+  const id = Number(formData.get("id"));
+  const idCliente = Number(formData.get("idCliente"));
+
+  if (!id || !idCliente) {
+    return { success: false, message: "ID de reserva o cliente inválido" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session?.access_token) {
+    return { success: false, message: "No autenticado" };
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || "http://localhost:8080/api/v1";
+
+  try {
+    const response = await fetch(`${apiUrl}/reservas/${id}/cancelar`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ id_cliente: idCliente }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API Error Response:", response.status, errorData);
+      return { success: false, message: errorData.error || "Error al cancelar la reserva por la API" };
+    }
+
+    revalidatePath("/dashboard/reservas");
+    return { success: true, message: "Reserva cancelada correctamente" };
+  } catch (err: any) {
+    console.error("Fetch Error:", err);
+    return { success: false, message: "Error de conexión con la API" };
+  }
+}
