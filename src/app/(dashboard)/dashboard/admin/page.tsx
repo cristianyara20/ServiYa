@@ -30,6 +30,14 @@ export default function AdminPanel() {
   const [apiLoadingHistorial, setApiLoadingHistorial] = useState(false);
   const [isPrestadorHistoryModalOpen, setIsPrestadorHistoryModalOpen] = useState(false);
   const [selectedPrestadorForHistory, setSelectedPrestadorForHistory] = useState<any>(null);
+
+  // PQRs desde API de Go
+  const [apiPqrs, setApiPqrs] = useState<any[]>([]);
+  const [apiLoadingPqrs, setApiLoadingPqrs] = useState(false);
+  const [isPqrModalOpen, setIsPqrModalOpen] = useState(false);
+  const [selectedPqr, setSelectedPqr] = useState<any>(null);
+  const [pqrRespuesta, setPqrRespuesta] = useState('');
+  const [pqrRespondiendo, setPqrRespondiendo] = useState(false);
   
   // Search and Forms state
   const [search, setSearch] = useState('');
@@ -114,6 +122,62 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchApiPqrs = async () => {
+    try {
+      setApiLoadingPqrs(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/operativo/pqrs`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const pqrs = await res.json();
+        setApiPqrs(pqrs || []);
+      }
+    } catch (err) {
+      console.error("Error fetching PQRs from Go API:", err);
+    } finally {
+      setApiLoadingPqrs(false);
+    }
+  };
+
+  const handleResponderPqr = async () => {
+    if (!selectedPqr || !pqrRespuesta.trim()) return;
+    try {
+      setPqrRespondiendo(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/operativo/pqrs/responder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ id_pqr: selectedPqr.id_pqr, respuesta_admin: pqrRespuesta })
+      });
+      if (res.ok) {
+        toast.success('PQR respondida exitosamente');
+        setIsPqrModalOpen(false);
+        setPqrRespuesta('');
+        setSelectedPqr(null);
+        fetchApiPqrs();
+      } else {
+        toast.error('Error al responder la PQR');
+      }
+    } catch (err) {
+      console.error("Error responding PQR:", err);
+      toast.error('Error de conexión con la API');
+    } finally {
+      setPqrRespondiendo(false);
+    }
+  };
+
   const fetchApiReviews = async () => {
     try {
       setApiLoadingReviews(true);
@@ -157,6 +221,7 @@ export default function AdminPanel() {
     fetchUsers();
     fetchApiPrestadores();
     fetchApiHistorial();
+    fetchApiPqrs();
     fetchApiReviews();
   }, []);
 
@@ -772,61 +837,103 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* Zona de Gestión de PQRs */}
+        {/* Zona de Gestión de PQRs (Desde la API de Go) */}
         {activeTab === 'Gestión de PQRs' && (
           <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
-             <div className="mb-6">
-                <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
-                <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos</p>
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos — consultado mediante la API de Go</p>
+                </div>
+                <button onClick={() => fetchApiPqrs()} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                  🔄 Refrescar
+                </button>
              </div>
-             <div className="overflow-x-auto">
-               <table className="w-full text-left border-collapse">
-                 <thead>
-                   <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase font-bold">
-                     <th className="px-4 py-3">Cliente</th>
-                     <th className="px-4 py-3">Tipo / Estado</th>
-                     <th className="px-4 py-3">Descripción</th>
-                     <th className="px-4 py-3">Fecha</th>
-                   </tr>
-                 </thead>
-                 <tbody className="text-sm">
-                    {allPQRs.length === 0 ? (
-                      <tr><td colSpan={4} className="py-10 text-center text-neutral-600">No hay PQRs registrados.</td></tr>
-                    ) : (
-                      <>
-                        {paginate(allPQRs).map((pqr, i) => (
-                          <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
-                            <td className="px-4 py-4">
-                               <div className="font-bold">{pqr.cliente_nombre}</div>
-                            </td>
-                            <td className="px-4 py-4">
-                               <span className="bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold block w-fit mb-1">{pqr.tipo_pqr}</span>
+             
+             {apiLoadingPqrs ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiPqrs.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay PQRs registrados en el sistema.</div>
+             ) : (
+               <>
+                 <div className="space-y-4">
+                   {paginate(apiPqrs).map((pqr: any, i: number) => (
+                     <div key={i} className="bg-neutral-50 dark:bg-black/50 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:border-orange-500/50 transition-all group relative overflow-hidden">
+                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       
+                       <div className="flex flex-col md:flex-row gap-4">
+                         {/* Info del cliente y PQR */}
+                         <div className="flex-1">
+                           <div className="flex items-center gap-3 mb-3">
+                             <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center justify-center text-lg font-black shrink-0">
+                               {pqr.nombre_cliente?.charAt(0)?.toUpperCase() || '?'}
+                             </div>
+                             <div>
+                               <h3 className="font-bold text-sm">{pqr.nombre_cliente}</h3>
+                               <p className="text-[10px] text-neutral-500">PQR #{pqr.id_pqr} • Reserva #{pqr.id_reserva || 'N/A'}</p>
+                             </div>
+                             <div className="ml-auto flex items-center gap-2">
+                               <span className="bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold">{pqr.tipo_pqr}</span>
                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                 pqr.estado_pqr === 'Resuelto' || pqr.estado_pqr === 'Cerrado' 
+                                 pqr.estado_pqr === 'Cerrado' 
                                  ? 'bg-green-500/20 text-green-500' 
                                  : 'bg-orange-500/20 text-orange-500 animate-pulse'
                                }`}>
-                                  {pqr.estado_pqr}
+                                 {pqr.estado_pqr}
                                </span>
-                            </td>
-                            <td className="px-4 py-4 text-neutral-400 max-w-xs truncate">{pqr.descripcion || 'Sin descripción.'}</td>
-                            <td className="px-4 py-4 text-neutral-600 text-xs font-mono">{new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                      </>
-                    )}
-                 </tbody>
-               </table>
-               {allPQRs.length > itemsPerPage && (
-                  <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-2">
-                    <Pagination 
-                      currentPage={currentPage} 
-                      totalPages={Math.ceil(allPQRs.length / itemsPerPage)} 
-                      onPageChange={setCurrentPage} 
-                    />
-                  </div>
-               )}
-              </div>
+                             </div>
+                           </div>
+                           
+                           {/* Descripción */}
+                           <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                             <span className="font-bold text-neutral-500 text-xs uppercase">Descripción: </span>
+                             {pqr.descripcion || 'Sin descripción.'}
+                           </p>
+                           
+                           <p className="text-[10px] text-neutral-500 font-mono">
+                             📅 {new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                           </p>
+
+                           {/* Respuesta del admin si existe */}
+                           {pqr.respuesta_admin && (
+                             <div className="mt-3 bg-green-500/5 border border-green-500/20 rounded-xl p-3">
+                               <p className="text-[10px] uppercase tracking-widest text-green-500 font-bold mb-1">✅ Respuesta del Administrador</p>
+                               <p className="text-sm text-neutral-700 dark:text-neutral-300">{pqr.respuesta_admin}</p>
+                               {pqr.fecha_respuesta && (
+                                 <p className="text-[10px] text-neutral-500 mt-1 font-mono">
+                                   Respondido el {new Date(pqr.fecha_respuesta).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                 </p>
+                               )}
+                             </div>
+                           )}
+                         </div>
+                         
+                         {/* Botón Responder */}
+                         {pqr.estado_pqr !== 'Cerrado' && (
+                           <div className="flex items-center shrink-0">
+                             <button
+                               onClick={() => { setSelectedPqr(pqr); setPqrRespuesta(''); setIsPqrModalOpen(true); }}
+                               className="bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                             >
+                               <span>💬</span> Responder
+                             </button>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+                 {apiPqrs.length > itemsPerPage && (
+                   <div className="mt-6 flex justify-center">
+                     <Pagination 
+                       currentPage={currentPage} 
+                       totalPages={Math.ceil(apiPqrs.length / itemsPerPage)} 
+                       onPageChange={setCurrentPage} 
+                     />
+                   </div>
+                 )}
+               </>
+             )}
            </div>
         )}
 
@@ -1152,6 +1259,61 @@ export default function AdminPanel() {
               >
                 Cerrar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para Responder PQR */}
+      {isPqrModalOpen && selectedPqr && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111] border border-neutral-800 w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-yellow-500" />
+            <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Responder PQR</h2>
+            <p className="text-sm text-neutral-400 mb-6">Enviando respuesta a la PQR #{selectedPqr.id_pqr} del cliente {selectedPqr.nombre_cliente}.</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Mensaje original</label>
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-neutral-300 italic">
+                  "{selectedPqr.descripcion}"
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Tu Respuesta</label>
+                <textarea
+                  value={pqrRespuesta}
+                  onChange={(e) => setPqrRespuesta(e.target.value)}
+                  placeholder="Escribe la respuesta que verá el cliente..."
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none h-32"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  onClick={() => setIsPqrModalOpen(false)}
+                  disabled={pqrRespondiendo}
+                  className="bg-neutral-800 hover:bg-neutral-700 text-white px-5 py-2.5 rounded-xl font-bold transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleResponderPqr}
+                  disabled={pqrRespondiendo || !pqrRespuesta.trim()}
+                  className="bg-orange-500 hover:bg-orange-400 text-white px-5 py-2.5 rounded-xl font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {pqrRespondiendo ? (
+                    <>
+                      <span className="animate-spin text-lg">↻</span> Respondiendo...
+                    </>
+                  ) : (
+                    <>
+                      <span>✉️</span> Enviar Respuesta
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

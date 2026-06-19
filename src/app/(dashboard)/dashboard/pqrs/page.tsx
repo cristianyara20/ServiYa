@@ -115,8 +115,7 @@ export default function PqrsPage() {
           return (
             <div
               key={p.id_pqr}
-              onClick={() => router.push(`/dashboard/pqrs/${p.id_pqr}`)}
-              className="group bg-white dark:bg-[#1f1609] border border-neutral-200 dark:border-[#2e1e0a] hover:border-orange-500 rounded-2xl p-5 cursor-pointer transition-all hover:-translate-y-1 relative overflow-hidden shadow-sm dark:shadow-none"
+              className="group bg-white dark:bg-[#1f1609] border border-neutral-200 dark:border-[#2e1e0a] hover:border-orange-500 rounded-2xl p-5 relative overflow-hidden shadow-sm dark:shadow-none"
             >
               <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-2xl" />
 
@@ -150,12 +149,17 @@ export default function PqrsPage() {
                 <span className="text-sm font-semibold text-neutral-700 dark:text-[#ccc] ml-auto">#{p.id_reserva}</span>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-[#2e1e0a] flex items-center justify-between">
-                <span className="text-[11px] text-neutral-400 dark:text-[#444] uppercase tracking-widest font-bold">Ver detalle</span>
-                <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
-                  <span className="text-orange-500 text-xs font-black">→</span>
+              {p.respuesta_admin && (
+                <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-green-500 text-xs">✅</span>
+                    <span className="text-[10px] uppercase tracking-widest text-green-500 font-bold">Respuesta de Soporte</span>
+                  </div>
+                  <p className="text-sm text-neutral-700 dark:text-neutral-300 italic">{p.respuesta_admin}</p>
                 </div>
-              </div>
+              )}
+
+
             </div>
           );
         })}
