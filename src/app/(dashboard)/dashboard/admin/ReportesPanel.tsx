@@ -59,7 +59,8 @@ export default function ReportesPanel() {
       
       const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1/reportes`;
+      const apiRoot = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      const baseUrl = `${apiRoot}/reportes`;
       const query = `?mes=${mes}&anio=${anio}`;
 
       const [resAdmin, resServicios, resActividad] = await Promise.all([
@@ -96,7 +97,8 @@ export default function ReportesPanel() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1/reportes`;
+      const apiRoot = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      const baseUrl = `${apiRoot}/reportes`;
       const res = await fetch(`${baseUrl}/admin/pdf?mes=${mes}&anio=${anio}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
