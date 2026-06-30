@@ -122,10 +122,11 @@ export async function cancelarReservaAction(
 
   // FALLBACK: Si no hay API configurada (ej. en Vercel sin backend desplegado),
   // actualizamos el estado directamente en Supabase.
+  const updatePayload: any = { estado_reserva: "cancelada" };
   const { error } = await supabase
     .schema("gestion")
     .from("reservas")
-    .update({ estado_reserva: "cancelada" })
+    .update(updatePayload)
     .eq("id_reserva", id)
     .eq("id_cliente", idCliente)
     .in("estado_reserva", ["pendiente", "aceptada"]);
