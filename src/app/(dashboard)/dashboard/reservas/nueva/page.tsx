@@ -74,11 +74,12 @@ export default function NuevaReservaPage() {
       // 3. INSERTAR RESERVA (via Service)
       await createReserva({
         id_cliente: clienteId,
-        id_prestador: null, // Se deja null para que aparezca en el mercado general de solicitudes pendientes
+        id_prestador: null,
         id_servicio: servicioSeleccionado,
         direccion: form.direccion,
         descripcion: `${subServicioSeleccionado}: ${form.detalleExtra}`,
-        fecha_agenda: new Date(form.fechaAgenda).toISOString(),
+        // Send the local datetime string directly to prevent UTC shift (e.g., "2026-07-20T15:30")
+        fecha_agenda: form.fechaAgenda,
       });
 
       alert("✅ Cita agendada correctamente");

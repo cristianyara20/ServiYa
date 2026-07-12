@@ -281,7 +281,7 @@ export default function PrestadorDashboard() {
                                 : res.cliente?.correo || `Cliente #${res.id_cliente}`}
                             </p>
                             {res.cliente?.correo && <p className="text-xs text-neutral-500">{res.cliente.correo}</p>}
-                            <p className="text-xs text-orange-500 mt-1 font-bold italic">📅 Para el: {new Date(res.fecha_agenda || res.fecha_solicitud).toLocaleString()}</p>
+                            <p className="text-xs text-orange-500 mt-1 font-bold italic">📅 Para el: {new Date((res.fecha_agenda || res.fecha_solicitud || '').length === 10 ? (res.fecha_agenda || res.fecha_solicitud) + 'T00:00:00' : (res.fecha_agenda || res.fecha_solicitud)).toLocaleString()}</p>
                           </div>
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
@@ -330,7 +330,7 @@ export default function PrestadorDashboard() {
                                 : res.cliente?.nombre || res.cliente?.correo || `Cliente #${res.id_cliente}`}
                             </p>
                             {res.cliente?.correo && <p className="text-xs text-neutral-500">{res.cliente.correo}</p>}
-                            <p className="text-xs text-green-500 mt-1 font-bold italic">📅 Programado para: {new Date(res.fecha_agenda).toLocaleString()}</p>
+                            <p className="text-xs text-green-500 mt-1 font-bold italic">📅 Programado para: {new Date((res.fecha_agenda || '').length === 10 ? res.fecha_agenda + 'T00:00:00' : res.fecha_agenda).toLocaleString()}</p>
                           </div>
                         </div>
                         <button onClick={() => handleStatusUpdate(res.id_reserva, 'terminada')} 
@@ -376,7 +376,7 @@ export default function PrestadorDashboard() {
                           </div>
                           {res.cliente?.correo && <div className="text-xs text-neutral-500">{res.cliente.correo}</div>}
                         </td>
-                        <td className="px-6 py-4 text-neutral-500 font-mono text-xs">{new Date(res.fecha_agenda).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-neutral-500 font-mono text-xs">{new Date((res.fecha_agenda || '').length === 10 ? res.fecha_agenda + 'T00:00:00' : res.fecha_agenda).toLocaleDateString()}</td>
                         <td className="px-6 py-4">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
                             res.estado_reserva === 'terminada' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
