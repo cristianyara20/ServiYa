@@ -55,11 +55,12 @@ export default function NuevaReservaPage() {
     email: "",
     direccion: "",
     detalleExtra: "",
+    fechaAgenda: "", // Nuevo estado para el calendario
   });
 
   const handleAgendar = async () => {
-    if (!form.nombre || !form.telefono || !form.direccion || !servicioSeleccionado || !subServicioSeleccionado) {
-      return alert("Completa todos los campos");
+    if (!form.nombre || !form.telefono || !form.direccion || !form.fechaAgenda || !servicioSeleccionado || !subServicioSeleccionado) {
+      return alert("Completa todos los campos, incluyendo la fecha de la cita.");
     }
 
     setLoading(true);
@@ -77,7 +78,7 @@ export default function NuevaReservaPage() {
         id_servicio: servicioSeleccionado,
         direccion: form.direccion,
         descripcion: `${subServicioSeleccionado}: ${form.detalleExtra}`,
-        fecha_agenda: new Date().toISOString(),
+        fecha_agenda: new Date(form.fechaAgenda).toISOString(),
       });
 
       alert("✅ Cita agendada correctamente");
@@ -122,6 +123,17 @@ export default function NuevaReservaPage() {
           className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none transition-all"
           onChange={(e) => setForm({ ...form, direccion: e.target.value })}
         />
+
+        <div>
+          <label className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-1 block">
+            Fecha y Hora de la Cita
+          </label>
+          <input
+            type="datetime-local"
+            className="w-full bg-white dark:bg-[#111009] border border-neutral-200 dark:border-[#2e1e0a] focus:border-orange-500 rounded-xl px-4 py-2 text-sm text-neutral-800 dark:text-[#ccc] outline-none transition-all"
+            onChange={(e) => setForm({ ...form, fechaAgenda: e.target.value })}
+          />
+        </div>
 
         <div>
           <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-[#555] font-bold mb-2">Tipo de Servicio</p>

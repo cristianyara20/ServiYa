@@ -281,7 +281,7 @@ export default function PrestadorDashboard() {
                                 : res.cliente?.correo || `Cliente #${res.id_cliente}`}
                             </p>
                             {res.cliente?.correo && <p className="text-xs text-neutral-500">{res.cliente.correo}</p>}
-                            <p className="text-xs text-neutral-500 mt-1">🕒 Solicitado: {new Date(res.fecha_solicitud).toLocaleDateString()}</p>
+                            <p className="text-xs text-orange-500 mt-1 font-bold italic">📅 Para el: {new Date(res.fecha_agenda || res.fecha_solicitud).toLocaleString()}</p>
                           </div>
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
@@ -330,7 +330,7 @@ export default function PrestadorDashboard() {
                                 : res.cliente?.nombre || res.cliente?.correo || `Cliente #${res.id_cliente}`}
                             </p>
                             {res.cliente?.correo && <p className="text-xs text-neutral-500">{res.cliente.correo}</p>}
-                            <p className="text-xs text-green-500 mt-1 font-bold italic">📅 Programado para: {new Date(res.fecha_agenda).toLocaleDateString()}</p>
+                            <p className="text-xs text-green-500 mt-1 font-bold italic">📅 Programado para: {new Date(res.fecha_agenda).toLocaleString()}</p>
                           </div>
                         </div>
                         <button onClick={() => handleStatusUpdate(res.id_reserva, 'terminada')} 

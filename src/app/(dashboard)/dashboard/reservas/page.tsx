@@ -90,7 +90,7 @@ export default function ReservasPage() {
                 <span className={r.estado_reserva === 'terminada' ? 'text-green-600' : r.estado_reserva === 'cancelada' ? 'text-neutral-500' : 'text-orange-500'}>RESERVA #{r.id_reserva}</span>
                 {getEstadoBadge(r.estado_reserva)}
               </p>
-              <p className="text-sm text-neutral-600 dark:text-gray-400">Fecha: {new Date(r.fecha_agenda).toLocaleDateString()}</p>
+              <p className="text-sm text-neutral-600 dark:text-gray-400">Fecha y Hora: {new Date(r.fecha_agenda).toLocaleString()}</p>
               <p className="text-sm text-neutral-600 dark:text-gray-400">Servicio: {r.servicios?.nombre_servicio || 'N/A'}</p>
               {r.descripcion && (
                 <p className="text-sm text-neutral-600 dark:text-gray-400 mt-2"><span className="font-bold">Opción:</span> {r.descripcion.replace(/: $/, '')}</p>
