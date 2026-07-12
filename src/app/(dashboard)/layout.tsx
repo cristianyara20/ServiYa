@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-black transition-colors duration-300">
       <Navbar user={user} logoutAction={logoutAction} />
-      <main className="flex-1 w-full bg-neutral-50 dark:bg-black transition-colors duration-300">{children}</main>
+      <main className="flex-1 bg-neutral-50 dark:bg-black transition-colors duration-300">{children}</main>
     </div>
   );
 }

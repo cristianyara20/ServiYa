@@ -1,0 +1,272 @@
+
+	
+CODIGO HISTORIA DE USUARIOCÓDIGO CASO DE USOHISTORIA DE USUARIOCRITERIOS DE ACEPTACIÓN ESCENARIOSNecesitamosPrioridadUS001CU001COMO usuario cliente NECESITO iniciar sesión. 
+-Si el usuario  ingresa con correo y contraseña válidos, se permite el acceso.
+-Si los datos son incorrectos no permite el acceso.
+-Si el usuario deja campos vacíos, muestra  un mensaje para completar el campo.
+-Usuario ingresa correo y contraseña válidos ? acceso permitido.
+-Usuario ingresa datos incorrectos ? acceso denegado.
+-Usuario deja campos vacíos ? sistema muestra mensaje.
+-Correo y con
+traseña.Muy alta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+US002CU002COMO usuario  cliente NECESITO acceder al módulo PQR para registrar una petición, queja o reclamoCriterios de Aceptación:
+-Si el usuario  inicia sesión  puede ver el módulo  PQR.
+-Si el usuario  no inicia sesión  no puede ver el módulo  PQR.
+
+ESCENARIOS:
+-Usuario cliente inicia sesión ? puede ver y acceder al módulo PQR.
+-Usuario cliente no inicia sesión ? el módulo PQR no es visible.Necesitamos
+-Usuario registrado
+-Acceso al  módulo PQRMuy AltaUS003CU003COMO usuario cliente  NECESITO llenar el formulario PQRCriterios de Aceptación:
+-El formulario tiene campos obligatorios.
+-Si el usuario intenta enviar sin completar los campos muestra un mensaje de completar los campos.
+
+ESCENARIOS:
+-Usuario completa todos los campos obligatorios ? formulario válido.
+-Usuario deja campos vacíos ? sistema muestra error y no permite continuar.
+
+Necesitamos
+-Tipo  de PQR.
+-Descripción.
+-Datos  de contacto
+AltaUS004CU004COMO usuario cliente  NECESITO enviar  el formulario PQRCriterios de aceptación:
+-Si el formulario está completo se envía.
+-Si hay campos vacíos  no permite el envío.
+-Confirmar envío exitoso.
+
+ESCENARIOS:
+-Formulario completo ? envío exitoso.
+-Formulario incompleto ? sistema muestra error.
+Necesitamos
+-PQR completo
+-PQR válidoAltaUS005CU005CÓMO administrador NECESITO visualizar las  PQRCriterios de Aceptación:
+-El administrador debe ver un listado  de las PQR  con un estado.
+-Como administrador puede ver los detalles de cada PQR.
+
+-ESCENARIOS:
+Administrador ingresa al sistema ? visualiza listado de PQR con estados.
+-Administrador selecciona un PQR ? puede ver detalles.Necesitamos
+-Acceso de administrador.
+AltaUS006CU006COMO administrador  NECESITO responder  un PQR para dar solución al problemaCriterios de Aceptación:
+
+-El administrador debe escribir una respuesta para dar solución.
+-Una vez dada la respuesta cambia de estado a resuelto.
+ESCENARIOS:
+-Administrador responde un PQR ? estado cambia a "Resuelto".
+-Administrador no ingresa respuesta ? sistema no permite registrar solución.
+Necesitamos
+-Acceso administrador
+-Lista de PQR
+Muy Alta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+US007CU007COMO Cliente NECESITO Calificar un servicio PARA reflejar mi experiencia
+Criterios de Aceptación:
+-El sistema solo permite calificar servicios agendados y finalizados con éxito
+-La calificación debe ser de 1 a 5 estrellas
+-El sistema no permite enviar calificación sin seleccionar estrellas
+-La calificación queda asociada al ID del servicio y al cliente que la realizó
+ESCENARIOS:
+-Cliente selecciona entre 1 a 5 estrellas? calificación registrada.
+-Cliente no selecciona estrellas? mensaje "Debe seleccionar una estrella".Necesitamos
+-Estrellas del 1 al 5
+-Servicio finalizado
+-Usuario autenticado como clienteMuy altaUS008CU008COMO cliente NECESITO escribir una reseña junto a mi calificacion PARA justificar mi opinión sobre el servicioCriterios de aceptación :
+-El sistema muestra un campo obligatorio  (mínimo 10 caracteres, máximo 500)
+-Cliente intenta dejar reseña vacía
+
+
+
+ESCENARIOS :
+-Cliente ingresa texto válido ? reseña registrada
+-Cliente intenta publicar reseña sin calificación ? mensaje "Debe calificar antes de reseñar"Necesitamos :
+-Texto de reseña
+-Calificación registrada
+-Usuario autenticado como clienteAltaUS009CU009COMO prestador NECESITO responder reseñas recibidas PARA aclarar comentarios de los clientesCriterios de aceptación :
+-El prestador sólo puede responder reseñas que correspondan a sus servicios
+-El sistema no permite modificar la reseña original del cliente
+-Cada reseña puede tener máximo una respuesta
+
+ESCENARIOS :
+-Prestador responde reseña de su cliente ? reseña registrada
+-Prestador intenta responder reseña de otro prestador ? error de permisos
+-Prestador intenta modificar respuesta ya enviada ?no permitidoNecesitamos :
+-Texto de reseña
+-Calificación registrada
+-Usuario autenticado como cliente
+
+Alta
+
+
+
+US010CU010COMO administrador NECESITO revisar las reseñas PARA garantizar la calidad de contenido del sistemaCriterios de aceptación :
+-El administrador puede visualizar todas las reseñas y sus respuestas
+-El administrador puede decidir si una reseña se mantiene o se marca como inapropiada
+-Las reseñas inapropiadas quedan para proceso de eliminación 
+ESCENARIOS :
+-Admin ingresa al panel ? ver reseñas 
+-Admin marca reseña como inapropiada? eliminar reseña
+Necesitamos :
+-Panel de revisión de reseñas
+-Usuario autenticado como Administrador
+
+Muy altaUS011CU011COMO administrador NECESITO eliminar reseñas inapropiadas PARA mantener la calidad del sistemaCriterios de aceptación :
+-El sistema elimina la reseña seleccionada
+-La reseña deja de ser visible para clientes y prestadores
+ESCENARIOS :
+-Admin confirma eliminación? reseña eliminada
+Necesitamos :
+-Permisos de eliminación
+-Usuario autenticado como AdministradorMuy alta
+
+
+US012
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CU012COMO Cliente NECESITO agendar un servicio PARA elegir fecha y hora de atenciónCriterios de aceptación :
+-El sistema debe mostrar un calendario con fecha y horas disponibles
+-El sistema valida que el cliente esté autenticado
+-Si el cliente elige una hora ya ocupada, muestra un mensaje de error
+-El sistema envía un mensaje de confirmación
+
+ESCENARIOS :
+-Cliente selecciona fecha y hora disponible? Servicio agendado exitosamente
+-Cliente selecciona fecha u hora ya ocupada? Mensaje "Horario no disponible
+-Cliente intenta agendar sin iniciar sesion? Acceso denegadoNecesitamos :
+-Catálogo de servicios
+-Calendario con disponibilidad
+-Usuario autenticado como cliente
+Muy altaUS013CU013COMO cliente
+NECESITO cancelar o reprogramar un servicio
+para gestionar el servicio a prestarCriterios de aceptación:
+-El cliente puede acceder a su historial de reservas.
+-En caso de reprogramación, solo se muestran horarios disponibles.
+-El sistema notifica al prestador sobre la cancelación o reprogramación.
+
+Escenarios:
+-Cliente cancela dentro del tiempo permitido ? reserva cancelada y notificación enviada.
+-Cliente reprograma seleccionando horario válido ? nueva fecha confirmada.
+Necesitamos:
+-Usuario autenticado como cliente
+-Historial de reservas
+-Módulo de notificacionesAltaUS014CU014COMO prestador
+NECESITO actualizar mis horarios de atención
+Para evitar agendamientos en fechas ya ocupadasCriterios de aceptación:
+-El prestador puede marcar horarios disponibles y no disponibles en el calendario.
+-Los cambios se reflejan en tiempo real en la plataforma.
+-El sistema no permite eliminar horarios ya reservados.
+Escenarios:
+-Prestador marca horario como ocupado ? no disponible para clientes.
+-Prestador marca horario como disponible ? visible para clientes.
+-Prestador intenta eliminar el horario ya reservado ? mensaje de error.
+Necesitamos:
+-Usuario autenticado como prestador
+-Calendario de disponibilidadMuy Alta
+US015CU015COMO Administrador
+NECESITO supervisar los agendamientos
+PARA garantizar el correcto funcionamiento de la plataformaCriterios de aceptación:
+-El administrador puede visualizar todas las reservas activas, canceladas y reprogramadas.
+-El sistema permite filtrar por fecha, cliente o prestador.
+-El administrador no puede modificar reservas.
+Escenarios:
+-Admin accede al panel ? visualiza listado de agendamientos.
+-Admin aplica filtro por prestador ? muestra solo reservas de ese prestadorNecesitamos:
+-Usuario autenticado como administrador
+-Panel de gestión de reservas
+Alta
+US015CU015COMO Administrador
+NECESITO supervisar los agendamientos
+PARA garantizar el correcto funcionamiento de la plataformaCriterios de aceptación:
+-El administrador puede visualizar todas las reservas activas, canceladas y reprogramadas.
+-El sistema permite filtrar por fecha, cliente o prestador.
+-El administrador no puede modificar reservas.
+Escenarios:
+-Admin accede al panel ? visualiza listado de agendamientos.
+-Admin aplica filtro por prestador ? muestra solo reservas de ese prestador.
+Necesitamos:
+-Usuario autenticado como administrador
+-Panel de gestión de reservasAlta
+
+US016CU016COMO Administrador
+NECESITO generar reportes de servicios agendadosCriterios de aceptación:
+-El sistema genera un reporte seleccionando el rango de fechas.
+-El reporte incluye:
+-Cantidad de servicios por tipo
+-Top 5 prestadores con más reservas
+-Porcentaje de cancelaciones y reprogramaciones
+-El sistema permite exportar a PDF o Excel.
+Escenarios:
+-Admin selecciona rango válido ? reporte generado.
+-Admin exporta ? archivo descargado correctamente.
+Necesitamos:
+-Usuario autenticado como administrador
+-Módulo de reportes
+-Filtros de rango de fechas
+Muy Alta
+
+
+
+ ServiYA
+                                                                          Sistema de Información para el agendamiento de servicios para hogar
+
+
+
+
+
+
+
+
+
+

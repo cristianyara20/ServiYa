@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 // DTOs adaptados desde Golang
 interface PrestadorTop {
@@ -38,6 +39,7 @@ interface ActividadUsuarios {
 }
 
 export default function ReportesPanel() {
+  const supabase = createBrowserSupabaseClient();
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
   
@@ -52,14 +54,24 @@ export default function ReportesPanel() {
     setLoading(true);
     setError(null);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1/reportes`;
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const apiRoot = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      const baseUrl = `${apiRoot}/reportes`;
       const query = `?mes=${mes}&anio=${anio}`;
 
       const [resAdmin, resServicios, resActividad] = await Promise.all([
-        fetch(`${baseUrl}/admin${query}`),
-        fetch(`${baseUrl}/servicios-populares${query}`),
-        fetch(`${baseUrl}/actividad-usuarios${query}`)
+        fetch(`${baseUrl}/admin${query}`, { headers }),
+        fetch(`${baseUrl}/servicios-populares${query}`, { headers }),
+        fetch(`${baseUrl}/actividad-usuarios${query}`, { headers })
       ]);
+
+      if (resAdmin.status === 401 || resAdmin.status === 403) {
+        throw new Error("No tienes autorización para ver estos datos (Token inválido o expirado).");
+      }
 
       if (!resAdmin.ok || !resServicios.ok || !resActividad.ok) {
         throw new Error("Error al obtener los datos de la API");
@@ -74,9 +86,37 @@ export default function ReportesPanel() {
       setActividad(dataActividad);
     } catch (err: any) {
       console.error(err);
-      setError("No se pudo conectar a la API. Asegúrate de que el backend de Go esté corriendo en el puerto 8080.");
+      setError(err.message || "No se pudo conectar a la API.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const downloadPDF = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const apiRoot = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      const baseUrl = `${apiRoot}/reportes`;
+      const res = await fetch(`${baseUrl}/admin/pdf?mes=${mes}&anio=${anio}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+
+      if (!res.ok) throw new Error("No se pudo descargar el PDF");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reporte_general_${mes}_${anio}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error(error);
+      alert("Error descargando el PDF. Asegúrate de estar autenticado.");
     }
   };
 
@@ -95,7 +135,7 @@ export default function ReportesPanel() {
           </h2>
           <p className="text-neutral-500 text-sm mt-1">Métricas en tiempo real procesadas por el motor de Go</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <select 
             value={mes} 
             onChange={(e) => setMes(Number(e.target.value))}
@@ -114,9 +154,18 @@ export default function ReportesPanel() {
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
+          
+          <button 
+            onClick={downloadPDF}
+            className="bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 text-white rounded-xl px-4 py-2 font-bold transition-colors flex items-center gap-2 text-sm"
+            title="Descargar Reporte en PDF"
+          >
+            <span>📄</span> PDF
+          </button>
+
           <button 
             onClick={fetchReportes}
-            className="bg-orange-500 hover:bg-orange-400 text-white rounded-xl px-4 py-2 font-bold transition-colors flex items-center gap-2"
+            className="bg-orange-500 hover:bg-orange-400 text-white rounded-xl px-4 py-2 font-bold transition-colors flex items-center gap-2 text-sm"
           >
             <span>🔄</span> Refrescar
           </button>

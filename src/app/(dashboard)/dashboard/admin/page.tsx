@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser } from './actions';
+import { getAdminDashboardData, deleteAdminUser, createAdminUser, updateAdminUser, deleteReview } from './actions';
 import { toast, Toaster } from 'react-hot-toast';
 import Pagination from "@/components/ui/Pagination";
 import ReportesPanel from './ReportesPanel';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('Gestión de Usuarios');
@@ -13,6 +14,7 @@ export default function AdminPanel() {
   const [allReservas, setAllReservas] = useState<any[]>([]);
   const [allPQRs, setAllPQRs] = useState<any[]>([]);
   const [allReviews, setAllReviews] = useState<any[]>([]);
+  const [apiLoadingReviews, setApiLoadingReviews] = useState(false);
   const [loading, setLoading] = useState(true);
   
   // Modals state
@@ -20,6 +22,22 @@ export default function AdminPanel() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
+  
+  // API Operativa state
+  const [apiPrestadores, setApiPrestadores] = useState<any[]>([]);
+  const [apiHistorial, setApiHistorial] = useState<any[]>([]);
+  const [apiLoadingPrestadores, setApiLoadingPrestadores] = useState(false);
+  const [apiLoadingHistorial, setApiLoadingHistorial] = useState(false);
+  const [isPrestadorHistoryModalOpen, setIsPrestadorHistoryModalOpen] = useState(false);
+  const [selectedPrestadorForHistory, setSelectedPrestadorForHistory] = useState<any>(null);
+
+  // PQRs desde API de Go
+  const [apiPqrs, setApiPqrs] = useState<any[]>([]);
+  const [apiLoadingPqrs, setApiLoadingPqrs] = useState(false);
+  const [isPqrModalOpen, setIsPqrModalOpen] = useState(false);
+  const [selectedPqr, setSelectedPqr] = useState<any>(null);
+  const [pqrRespuesta, setPqrRespuesta] = useState('');
+  const [pqrRespondiendo, setPqrRespondiendo] = useState(false);
   
   // Search and Forms state
   const [search, setSearch] = useState('');
@@ -60,6 +78,128 @@ export default function AdminPanel() {
     return sorted.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const fetchApiPrestadores = async (silent = false) => {
+    try {
+      if (!silent) setApiLoadingPrestadores(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+      
+      const res = await fetch(`${baseUrl}/operativo/prestadores`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const prestadores = await res.json();
+        setApiPrestadores(prestadores || []);
+      }
+    } catch (err) {
+      console.error("Error fetching prestadores from Go API:", err);
+    } finally {
+      if (!silent) setApiLoadingPrestadores(false);
+    }
+  };
+
+  const fetchApiHistorial = async () => {
+    try {
+      setApiLoadingHistorial(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/operativo/historial-servicios`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const historial = await res.json();
+        setApiHistorial(historial || []);
+      }
+    } catch (err) {
+      console.error("Error fetching services history from Go API:", err);
+    } finally {
+      setApiLoadingHistorial(false);
+    }
+  };
+
+  const fetchApiPqrs = async () => {
+    try {
+      setApiLoadingPqrs(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/operativo/pqrs`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const pqrs = await res.json();
+        setApiPqrs(pqrs || []);
+      }
+    } catch (err) {
+      console.error("Error fetching PQRs from Go API:", err);
+    } finally {
+      setApiLoadingPqrs(false);
+    }
+  };
+
+  const handleResponderPqr = async () => {
+    if (!selectedPqr || !pqrRespuesta.trim()) return;
+    try {
+      setPqrRespondiendo(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/operativo/pqrs/responder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ id_pqr: selectedPqr.id_pqr, respuesta_admin: pqrRespuesta })
+      });
+      if (res.ok) {
+        toast.success('PQR respondida exitosamente');
+        setIsPqrModalOpen(false);
+        setPqrRespuesta('');
+        setSelectedPqr(null);
+        fetchApiPqrs();
+      } else {
+        toast.error('Error al responder la PQR');
+      }
+    } catch (err) {
+      console.error("Error responding PQR:", err);
+      toast.error('Error de conexión con la API');
+    } finally {
+      setPqrRespondiendo(false);
+    }
+  };
+
+  const fetchApiReviews = async () => {
+    try {
+      setApiLoadingReviews(true);
+      const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
+      const token = session?.access_token;
+      let baseUrl = process.env.NEXT_PUBLIC_REPORTES_API_URL || `http://localhost:8080/api/v1`;
+      if (baseUrl.endsWith('/reportes')) baseUrl = baseUrl.replace('/reportes', '');
+
+      const res = await fetch(`${baseUrl}/reportes/calificaciones`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const reviewsData = await res.json();
+        setAllReviews(reviewsData || []);
+      }
+    } catch (err) {
+      console.error("Error fetching reviews from Go API:", err);
+    } finally {
+      setApiLoadingReviews(false);
+    }
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -68,7 +208,7 @@ export default function AdminPanel() {
       setGlobalStats(data.stats);
       setAllReservas(data.allReservas || []);
       setAllPQRs(data.allPQRs || []);
-      setAllReviews(data.allReviews || []);
+      // Reseñas ahora se traen de la API de Go
       setDebugInfo(data.debug);
     } catch (e) {
       console.error(e);
@@ -79,7 +219,25 @@ export default function AdminPanel() {
 
   useEffect(() => {
     fetchUsers();
+    fetchApiPrestadores();
+    fetchApiHistorial();
+    fetchApiPqrs();
+    fetchApiReviews();
   }, []);
+
+  // Poll prestadores state to simulate real-time updates every 8 seconds
+  useEffect(() => {
+    if (activeTab === 'Gestión de Prestadores') {
+      const interval = setInterval(() => fetchApiPrestadores(true), 8000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'Historial de Servicios') {
+      fetchApiHistorial();
+    }
+  }, [activeTab]);
 
   const handleDelete = async (id: string, db_id?: any) => {
     if (confirm('¿Estás seguro de que deseas eliminar este usuario completamente?')) {
@@ -94,6 +252,19 @@ export default function AdminPanel() {
         }
       } catch (err: any) {
         toast.error(`Error: ${err.message}`, { id: loadingToast });
+      }
+    }
+  };
+
+  const handleDeleteReviewClick = async (idReserva: number) => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta reseña permanentemente?')) {
+      const loadingToast = toast.loading('Eliminando reseña...');
+      const res = await deleteReview(idReserva);
+      if (res.error) {
+        toast.error(res.error, { id: loadingToast });
+      } else {
+        toast.success('Reseña eliminada con éxito.', { id: loadingToast });
+        fetchApiReviews(); // Recarga la lista desde la API
       }
     }
   };
@@ -194,7 +365,7 @@ export default function AdminPanel() {
   const stats = [
     { label: 'Usuarios',      value: globalStats?.usuarios || users.length,   icon: '👥', color: 'from-blue-600 to-blue-800' },
     { label: 'Citas',         value: globalStats?.citas || 0,                 icon: '🗓️', color: 'from-purple-600 to-purple-800' },
-    { label: 'Reseñas',       value: globalStats?.resenas || 0,               icon: '⭐', color: 'from-yellow-500 to-orange-500' },
+    { label: 'Reseñas',       value: allReviews.length,                       icon: '⭐', color: 'from-yellow-500 to-orange-500' },
     { label: 'PQRs',          value: globalStats?.pqrs || 0,                  icon: '💬', color: 'from-green-500 to-green-700' },
     { label: 'Promedio',      value: globalStats?.promedio || '0.0',          icon: '📊', color: 'from-orange-500 to-red-500' },
     { label: 'Emergencias',   value: globalStats?.emergencias || 0,           icon: '🚨', color: 'from-red-600 to-red-800' },
@@ -204,8 +375,10 @@ export default function AdminPanel() {
 
   const tabs = [
     { label: `Gestión de Usuarios (${globalStats?.usuarios || users.length})`, id: 'Gestión de Usuarios', icon: '👥' },
+    { label: `Gestión de Prestadores`, id: 'Gestión de Prestadores', icon: '🔧' },
+    { label: `Historial de Servicios`, id: 'Historial de Servicios', icon: '📜' },
     { label: `Gestión de Citas (${globalStats?.citas || 0})`, id: 'Gestión de Citas', icon: '🗓️' },
-    { label: `Gestión de Reseñas (${globalStats?.resenas || 0})`, id: 'Gestión de Reseñas', icon: '⭐' },
+    { label: `Gestión de Reseñas (${allReviews.length})`, id: 'Gestión de Reseñas', icon: '⭐' },
     { label: `Gestión de PQRs (${globalStats?.pqrs || 0})`, id: 'Gestión de PQRs', icon: '💬' },
     { label: 'Reportes y Analíticas', id: 'Reportes', icon: '📊' },
   ];
@@ -590,7 +763,9 @@ export default function AdminPanel() {
                 </span>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {allReviews.length === 0 ? (
+                {apiLoadingReviews ? (
+                  <div className="col-span-full py-10 text-center text-orange-500 font-bold animate-pulse">Cargando reseñas desde la API...</div>
+                ) : allReviews.length === 0 ? (
                   <div className="col-span-full py-10 text-center text-neutral-600">No hay reseñas por ahora.</div>
                 ) : (
                   <>
@@ -598,14 +773,31 @@ export default function AdminPanel() {
                       <div key={i} className="bg-black/50 border border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/30 transition-colors">
                          <div className="absolute right-4 top-4 text-3xl font-black text-yellow-500/10 group-hover:text-yellow-500/30 transition-opacity">{rev.puntuacion}.0</div>
                          
+                         <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button 
+                             onClick={() => handleDeleteReviewClick(rev.id_reserva)}
+                             className="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-full transition-colors"
+                             title="Eliminar reseña"
+                           >
+                             🗑️
+                           </button>
+                         </div>
+                         
                          {/* Cliente */}
                          <div className="flex items-center gap-2 mb-3">
                            <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-sm font-black text-yellow-400 shrink-0">
-                             {rev.cliente_nombre?.charAt(0)?.toUpperCase() || '?'}
+                             {rev.nombre_cliente?.charAt(0)?.toUpperCase() || '?'}
                            </div>
                            <div>
-                             <div className="text-sm font-bold text-white">{rev.cliente_nombre}</div>
-                             <div className="text-[10px] text-neutral-500">{rev.cliente_email}</div>
+                             <div className="text-sm font-bold text-white">{rev.nombre_cliente || 'Cliente'}</div>
+                             <div className="text-[10px] text-neutral-500">Servicio: {rev.nombre_servicio || 'N/A'}</div>
+                           </div>
+                         </div>
+
+                         {/* Prestador */}
+                         <div className="flex items-center gap-2 mb-3">
+                           <div className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">
+                             Prestador: {rev.nombre_prestador || 'N/A'}
                            </div>
                          </div>
 
@@ -645,62 +837,245 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* Zona de Gestión de PQRs */}
+        {/* Zona de Gestión de PQRs (Desde la API de Go) */}
         {activeTab === 'Gestión de PQRs' && (
           <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
-             <div className="mb-6">
-                <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
-                <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos</p>
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos — consultado mediante la API de Go</p>
+                </div>
+                <button onClick={() => fetchApiPqrs()} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                  🔄 Refrescar
+                </button>
              </div>
-             <div className="overflow-x-auto">
-               <table className="w-full text-left border-collapse">
-                 <thead>
-                   <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase font-bold">
-                     <th className="px-4 py-3">Cliente</th>
-                     <th className="px-4 py-3">Tipo / Estado</th>
-                     <th className="px-4 py-3">Descripción</th>
-                     <th className="px-4 py-3">Fecha</th>
-                   </tr>
-                 </thead>
-                 <tbody className="text-sm">
-                    {allPQRs.length === 0 ? (
-                      <tr><td colSpan={4} className="py-10 text-center text-neutral-600">No hay PQRs registrados.</td></tr>
-                    ) : (
-                      <>
-                        {paginate(allPQRs).map((pqr, i) => (
-                          <tr key={i} className="border-b border-neutral-900 hover:bg-white/5 transition-colors">
-                            <td className="px-4 py-4">
-                               <div className="font-bold">{pqr.cliente_nombre}</div>
-                            </td>
-                            <td className="px-4 py-4">
-                               <span className="bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold block w-fit mb-1">{pqr.tipo_pqr}</span>
+             
+             {apiLoadingPqrs ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiPqrs.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay PQRs registrados en el sistema.</div>
+             ) : (
+               <>
+                 <div className="space-y-4">
+                   {paginate(apiPqrs).map((pqr: any, i: number) => (
+                     <div key={i} className="bg-neutral-50 dark:bg-black/50 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:border-orange-500/50 transition-all group relative overflow-hidden">
+                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       
+                       <div className="flex flex-col md:flex-row gap-4">
+                         {/* Info del cliente y PQR */}
+                         <div className="flex-1">
+                           <div className="flex items-center gap-3 mb-3">
+                             <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center justify-center text-lg font-black shrink-0">
+                               {pqr.nombre_cliente?.charAt(0)?.toUpperCase() || '?'}
+                             </div>
+                             <div>
+                               <h3 className="font-bold text-sm">{pqr.nombre_cliente}</h3>
+                               <p className="text-[10px] text-neutral-500">PQR #{pqr.id_pqr} • Reserva #{pqr.id_reserva || 'N/A'}</p>
+                             </div>
+                             <div className="ml-auto flex items-center gap-2">
+                               <span className="bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 rounded text-[10px] font-bold">{pqr.tipo_pqr}</span>
                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                 pqr.estado_pqr === 'Resuelto' || pqr.estado_pqr === 'Cerrado' 
+                                 pqr.estado_pqr === 'Cerrado' 
                                  ? 'bg-green-500/20 text-green-500' 
                                  : 'bg-orange-500/20 text-orange-500 animate-pulse'
                                }`}>
-                                  {pqr.estado_pqr}
+                                 {pqr.estado_pqr}
                                </span>
-                            </td>
-                            <td className="px-4 py-4 text-neutral-400 max-w-xs truncate">{pqr.descripcion || 'Sin descripción.'}</td>
-                            <td className="px-4 py-4 text-neutral-600 text-xs font-mono">{new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                      </>
-                    )}
-                 </tbody>
-               </table>
-               {allPQRs.length > itemsPerPage && (
-                  <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-2">
-                    <Pagination 
-                      currentPage={currentPage} 
-                      totalPages={Math.ceil(allPQRs.length / itemsPerPage)} 
-                      onPageChange={setCurrentPage} 
-                    />
-                  </div>
-               )}
-              </div>
+                             </div>
+                           </div>
+                           
+                           {/* Descripción */}
+                           <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                             <span className="font-bold text-neutral-500 text-xs uppercase">Descripción: </span>
+                             {pqr.descripcion || 'Sin descripción.'}
+                           </p>
+                           
+                           <p className="text-[10px] text-neutral-500 font-mono">
+                             📅 {new Date(pqr.fecha_pqr || Date.now()).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                           </p>
+
+                           {/* Respuesta del admin si existe */}
+                           {pqr.respuesta_admin && (
+                             <div className="mt-3 bg-green-500/5 border border-green-500/20 rounded-xl p-3">
+                               <p className="text-[10px] uppercase tracking-widest text-green-500 font-bold mb-1">✅ Respuesta del Administrador</p>
+                               <p className="text-sm text-neutral-700 dark:text-neutral-300">{pqr.respuesta_admin}</p>
+                               {pqr.fecha_respuesta && (
+                                 <p className="text-[10px] text-neutral-500 mt-1 font-mono">
+                                   Respondido el {new Date(pqr.fecha_respuesta).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                 </p>
+                               )}
+                             </div>
+                           )}
+                         </div>
+                         
+                         {/* Botón Responder */}
+                         {pqr.estado_pqr !== 'Cerrado' && (
+                           <div className="flex items-center shrink-0">
+                             <button
+                               onClick={() => { setSelectedPqr(pqr); setPqrRespuesta(''); setIsPqrModalOpen(true); }}
+                               className="bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                             >
+                               <span>💬</span> Responder
+                             </button>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+                 {apiPqrs.length > itemsPerPage && (
+                   <div className="mt-6 flex justify-center">
+                     <Pagination 
+                       currentPage={currentPage} 
+                       totalPages={Math.ceil(apiPqrs.length / itemsPerPage)} 
+                       onPageChange={setCurrentPage} 
+                     />
+                   </div>
+                 )}
+               </>
+             )}
            </div>
+        )}
+
+        {/* Zona de Gestión de Prestadores (Desde la API de Go en Tiempo Real) */}
+        {activeTab === 'Gestión de Prestadores' && (
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>🔧</span> Prestadores de Servicios</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Disponibilidad y estado en tiempo real consultado mediante la API de Go</p>
+                </div>
+                 <button onClick={() => fetchApiPrestadores(false)} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                   🔄 Refrescar
+                 </button>
+             </div>
+             
+             {apiLoadingPrestadores ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiPrestadores.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay prestadores registrados en el sistema.</div>
+             ) : (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {apiPrestadores.map((prestador) => (
+                   <div key={prestador.id_prestador} className="bg-neutral-50 dark:bg-black/50 border border-neutral-200 dark:border-neutral-800 p-5 rounded-2xl relative overflow-hidden group hover:border-orange-500/30 transition-all">
+                     <div className="flex justify-between items-start mb-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-sm font-black text-orange-500">
+                           {prestador.nombre?.charAt(0).toUpperCase()}
+                         </div>
+                         <div>
+                           <h4 className="font-bold text-sm text-neutral-900 dark:text-white leading-tight capitalize">{prestador.nombre} {prestador.apellido}</h4>
+                           <span className="text-[10px] text-neutral-500 font-mono">ID: #{prestador.id_prestador}</span>
+                         </div>
+                       </div>
+                       
+                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                         prestador.estado_disponibilidad === 'disponible' ? 'bg-green-500/20 text-green-500' :
+                         prestador.estado_disponibilidad === 'ocupado' ? 'bg-orange-500/20 text-orange-500 animate-pulse' :
+                         'bg-red-500/20 text-red-500'
+                       }`}>
+                         ● {prestador.estado_disponibilidad}
+                       </span>
+                     </div>
+                     
+                     <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 text-xs space-y-2 mt-3">
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Correo:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 font-semibold">{prestador.correo}</span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Calificación:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 font-bold">⭐ {prestador.calificacion_promedio?.toFixed(1) || '5.0'}</span>
+                       </div>
+                       <div className="flex justify-between">
+                         <span className="text-neutral-500">Experiencia:</span>
+                         <span className="text-neutral-800 dark:text-neutral-300 italic">{prestador.experiencia || 'No especificada'}</span>
+                       </div>
+                     </div>
+                     <button
+                       onClick={() => {
+                         setSelectedPrestadorForHistory(prestador);
+                         setIsPrestadorHistoryModalOpen(true);
+                       }}
+                       className="mt-4 w-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 font-bold text-xs py-2 rounded-xl transition-colors"
+                     >
+                       Ver Reservas Atendidas
+                     </button>
+                   </div>
+                 ))}
+               </div>
+             )}
+          </div>
+        )}
+
+        {/* Zona de Historial de Servicios Completo (Desde la API de Go) */}
+        {activeTab === 'Historial de Servicios' && (
+          <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 md:p-8 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2"><span>📜</span> Historial Completo de Servicios</h2>
+                  <p className="text-neutral-500 text-sm mt-1">Lista consolidada de todos los servicios solicitados y atendidos en la plataforma mediante la API de Go</p>
+                </div>
+                <button onClick={fetchApiHistorial} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
+                  🔄 Refrescar
+                </button>
+             </div>
+             
+             {apiLoadingHistorial ? (
+               <div className="text-center py-10 text-orange-500 font-bold animate-pulse">Consultando API de Go...</div>
+             ) : apiHistorial.length === 0 ? (
+               <div className="text-center py-10 text-neutral-500">No hay registros en el historial de servicios.</div>
+             ) : (
+               <div className="overflow-x-auto">
+                 <table className="w-full text-left border-collapse">
+                   <thead>
+                     <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-500 text-xs uppercase font-bold tracking-wider">
+                       <th className="px-6 py-4">ID Reserva</th>
+                       <th className="px-6 py-4">Servicio</th>
+                       <th className="px-6 py-4">Cliente</th>
+                       <th className="px-6 py-4">Fecha Agenda</th>
+                       <th className="px-6 py-4">Dirección</th>
+                       <th className="px-6 py-4">Estado</th>
+                     </tr>
+                   </thead>
+                   <tbody className="text-sm">
+                     {paginate(apiHistorial).map((item) => (
+                       <tr key={item.id_reserva} className="border-b border-neutral-100 dark:border-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
+                         <td className="px-6 py-4 font-mono font-bold text-neutral-500">#{item.id_reserva}</td>
+                         <td className="px-6 py-4 font-bold">{item.nombre_servicio}</td>
+                         <td className="px-6 py-4">
+                           <div className="font-semibold text-neutral-950 dark:text-white capitalize">{item.nombre_cliente}</div>
+                           <span className="text-[10px] text-neutral-500 font-mono">ID Cliente: #{item.id_cliente}</span>
+                         </td>
+                         <td className="px-6 py-4 text-neutral-600 font-mono text-xs">{item.fecha_agenda}</td>
+                         <td className="px-6 py-4 italic text-neutral-500 max-w-xs truncate">{item.direccion || 'No especificada'}</td>
+                         <td className="px-6 py-4">
+                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                             item.estado_reserva === 'pendiente' ? 'bg-blue-500/20 text-blue-500' :
+                             item.estado_reserva === 'aceptada' ? 'bg-yellow-500/20 text-yellow-500' :
+                             item.estado_reserva === 'terminada' ? 'bg-green-500/20 text-green-500' :
+                             'bg-red-500/20 text-red-500'
+                           }`}>
+                             {item.estado_reserva}
+                           </span>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+                 
+                 {apiHistorial.length > itemsPerPage && (
+                   <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 flex justify-center mt-4">
+                     <Pagination 
+                       currentPage={currentPage} 
+                       totalPages={Math.ceil(apiHistorial.length / itemsPerPage)} 
+                       onPageChange={setCurrentPage} 
+                     />
+                   </div>
+                 )}
+               </div>
+             )}
+          </div>
         )}
 
         {/* Zona de Reportes y Analíticas */}
@@ -822,6 +1197,125 @@ export default function AdminPanel() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* MODAL HISTORIAL PRESTADOR */}
+      {isPrestadorHistoryModalOpen && selectedPrestadorForHistory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-3xl p-6 shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">
+                Reservas Atendidas: <span className="text-orange-500 capitalize">{selectedPrestadorForHistory.nombre} {selectedPrestadorForHistory.apellido}</span>
+              </h3>
+              <button onClick={() => setIsPrestadorHistoryModalOpen(false)} className="text-neutral-500 hover:text-white text-2xl font-bold cursor-pointer">
+                &times;
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase font-bold tracking-wider">
+                    <th className="py-3 px-4">Servicio</th>
+                    <th className="py-3 px-4">Cliente</th>
+                    <th className="py-3 px-4">Fecha</th>
+                    <th className="py-3 px-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {apiHistorial.filter(h => h.id_prestador != null && Number(h.id_prestador) === Number(selectedPrestadorForHistory.id_prestador)).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-10 text-center text-neutral-500">
+                        Este prestador no tiene reservas registradas en el historial (o falta actualizar la API de Go).
+                      </td>
+                    </tr>
+                  ) : (
+                    apiHistorial.filter(h => h.id_prestador != null && Number(h.id_prestador) === Number(selectedPrestadorForHistory.id_prestador)).map((res) => (
+                      <tr key={res.id_reserva} className="border-b border-neutral-800/50 hover:bg-white/5 transition-colors">
+                        <td className="py-3 px-4 font-bold">{res.nombre_servicio || res.descripcion || `Servicio #${res.id_servicio}`}</td>
+                        <td className="py-3 px-4 text-neutral-300">{res.nombre_cliente || `Cliente #${res.id_cliente}`}</td>
+                        <td className="py-3 px-4 text-neutral-500 font-mono text-xs">{new Date(res.fecha_agenda).toLocaleString()}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            res.estado_reserva === 'terminada' ? 'bg-green-500/20 text-green-500' : 
+                            res.estado_reserva === 'rechazada' ? 'bg-red-500/20 text-red-500' :
+                            'bg-orange-500/20 text-orange-500'
+                          }`}>
+                            {res.estado_reserva}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-neutral-800 flex justify-end">
+              <button 
+                onClick={() => setIsPrestadorHistoryModalOpen(false)} 
+                className="bg-neutral-800 hover:bg-neutral-700 text-white px-6 py-2 rounded-xl font-bold transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para Responder PQR */}
+      {isPqrModalOpen && selectedPqr && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111] border border-neutral-800 w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-yellow-500" />
+            <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Responder PQR</h2>
+            <p className="text-sm text-neutral-400 mb-6">Enviando respuesta a la PQR #{selectedPqr.id_pqr} del cliente {selectedPqr.nombre_cliente}.</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Mensaje original</label>
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-neutral-300 italic">
+                  "{selectedPqr.descripcion}"
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-2">Tu Respuesta</label>
+                <textarea
+                  value={pqrRespuesta}
+                  onChange={(e) => setPqrRespuesta(e.target.value)}
+                  placeholder="Escribe la respuesta que verá el cliente..."
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none h-32"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  onClick={() => setIsPqrModalOpen(false)}
+                  disabled={pqrRespondiendo}
+                  className="bg-neutral-800 hover:bg-neutral-700 text-white px-5 py-2.5 rounded-xl font-bold transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleResponderPqr}
+                  disabled={pqrRespondiendo || !pqrRespuesta.trim()}
+                  className="bg-orange-500 hover:bg-orange-400 text-white px-5 py-2.5 rounded-xl font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {pqrRespondiendo ? (
+                    <>
+                      <span className="animate-spin text-lg">↻</span> Respondiendo...
+                    </>
+                  ) : (
+                    <>
+                      <span>✉️</span> Enviar Respuesta
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
