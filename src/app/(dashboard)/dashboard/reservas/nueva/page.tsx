@@ -78,8 +78,8 @@ export default function NuevaReservaPage() {
         id_servicio: servicioSeleccionado,
         direccion: form.direccion,
         descripcion: `${subServicioSeleccionado}: ${form.detalleExtra}`,
-        // Send the local datetime string directly to prevent UTC shift (e.g., "2026-07-20T15:30")
-        fecha_agenda: form.fechaAgenda,
+        // Convert to ISO string so Supabase saves the exact UTC moment
+        fecha_agenda: new Date(form.fechaAgenda).toISOString(),
       });
 
       alert("✅ Cita agendada correctamente");
