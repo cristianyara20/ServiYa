@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -31,29 +31,53 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    const supabase = createBrowserSupabaseClient();
+    try {
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_REPORTES_API_URL ||
+        (process.env.NODE_ENV === "production"
+          ? "https://apiserviya.onrender.com/api/v1"
+          : "http://localhost:8080/api/v1");
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          nombre,
-          apellido,
+      const cleanBase = apiBaseUrl.endsWith("/reportes")
+        ? apiBaseUrl.replace("/reportes", "")
+        : apiBaseUrl;
+
+      const res = await fetch(`${cleanBase}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          correo: email.trim().toLowerCase(),
+          password,
+          nombre: nombre.trim(),
+          apellido: apellido.trim(),
           fecha_nacimiento: fechaNacimiento,
           rol: "usuario",
-        },
-      },
-    });
+        }),
+      });
 
-    if (error) {
-      setError(error.message);
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || data?.detalle || "Error al crear la cuenta. Intenta nuevamente."
+        );
+      }
+
+      router.push("/auth/login");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error inesperado al conectar con el servidor.");
+      }
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/auth/login");
   }
+
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
