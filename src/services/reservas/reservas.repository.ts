@@ -65,6 +65,49 @@ export class ReservaRepository implements IRepository<Reserva, number, CreateRes
 
   async create(dto: CreateReservaDTO): Promise<Reserva> {
     const supabase = await createServerSupabaseClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_REPORTES_API_URL ||
+      "https://apiserviya.onrender.com/api/v1";
+
+    if (apiBaseUrl) {
+      try {
+        const payload = {
+          id_cliente: dto.idCliente,
+          id_servicio: dto.idServicio,
+          id_prestador: dto.idPrestador ?? null,
+          direccion: dto.direccion || "",
+          descripcion: dto.descripcion || "",
+          fecha_agenda: dto.fechaAgenda,
+        };
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+
+        if (session?.access_token) {
+          headers["Authorization"] = `Bearer ${session.access_token}`;
+        } else if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+          headers["Authorization"] = `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`;
+        }
+
+        const response = await fetch(`${apiBaseUrl}/reservas`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const resJson = await response.json();
+          return mapToReserva(resJson);
+        }
+      } catch (e) {
+        console.warn("⚠️ API Go fallback a Supabase en create:", e);
+      }
+    }
+
     const { data, error } = await supabase
       .schema("gestion")
       .from("reservas")
