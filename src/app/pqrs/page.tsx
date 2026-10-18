@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { createPqrs } from "@/services/pqrs/pqrsClientService";
 
 export default function PqrsPage() {
   const [form, setForm] = useState({
@@ -10,37 +10,36 @@ export default function PqrsPage() {
     tipo_pqr: "",
     descripcion: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const payload = {
-      id_cliente: Number(form.id_cliente),
-      id_reserva: Number(form.id_reserva),
-      tipo_pqr: form.tipo_pqr, // ✅ nombre correcto
-      descripcion: form.descripcion,
-      estado_pqr: "Abierto", // ✅ nombre correcto según tu BD
-    };
+    try {
+      setLoading(true);
+      const payload = {
+        id_cliente: Number(form.id_cliente),
+        id_reserva: Number(form.id_reserva),
+        tipo_pqr: form.tipo_pqr,
+        descripcion: form.descripcion,
+      };
 
-    const supabase = createBrowserSupabaseClient();
-    const { error } = await supabase
-      .schema("soporte")
-      .from("pqrs")
-      .insert([payload]);
+      await createPqrs(payload);
 
-    if (error) {
-      console.error("Error de Supabase:", error);
-      return alert("❌ Error al enviar: " + error.message);
+      alert("✅ PQRS enviada con éxito");
+
+      setForm({
+        id_cliente: "",
+        id_reserva: "",
+        tipo_pqr: "",
+        descripcion: "",
+      });
+    } catch (error: any) {
+      console.error("Error al enviar PQRS:", error);
+      alert("❌ Error al enviar: " + (error?.message || error));
+    } finally {
+      setLoading(false);
     }
-
-    alert("✅ PQRS enviada con éxito");
-
-    setForm({
-      id_cliente: "",
-      id_reserva: "",
-      tipo_pqr: "",
-      descripcion: "",
-    });
   };
 
   return (
@@ -90,17 +89,18 @@ export default function PqrsPage() {
 
         <button
           type="submit"
+          disabled={loading}
           style={{
             padding: "12px",
-            background: "#6a5acd",
+            background: loading ? "#999" : "#6a5acd",
             color: "white",
             border: "none",
             borderRadius: "5px",
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
             fontWeight: "bold",
           }}
         >
-          Enviar PQRS
+          {loading ? "Enviando a la API..." : "Enviar PQRS"}
         </button>
       </form>
     </div>

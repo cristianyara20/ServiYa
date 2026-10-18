@@ -57,7 +57,40 @@ export class PqrsRepository implements IRepository<Pqrs, number, CreatePqrsDTO> 
   }
 
   async create(dto: CreatePqrsDTO): Promise<Pqrs> {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://apiserviya.onrender.com/api/v1";
     const supabase = await createServerSupabaseClient();
+
+    let token = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        token = session.access_token;
+      }
+    } catch (_) {}
+
+    // 1. Intentar registrar a través de la API REST de Go
+    try {
+      const response = await fetch(`${apiUrl}/operativo/pqrs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id_cliente: dto.idCliente,
+          id_reserva: dto.idReserva,
+          tipo_pqr: dto.tipoPqr,
+          descripcion: dto.descripcion,
+        }),
+      });
+
+      if (response.ok) {
+        const row = await response.json();
+        return mapToPqrs(row);
+      }
+    } catch (_) {}
+
+    // 2. Fallback resiliente en Supabase
     const { data, error } = await supabase
       .schema("soporte")
       .from("pqrs")
