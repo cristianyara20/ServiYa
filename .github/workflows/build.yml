@@ -16,8 +16,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Mark git directory as safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: sonarsource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
