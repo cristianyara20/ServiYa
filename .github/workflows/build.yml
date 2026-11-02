@@ -7,6 +7,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+
 jobs:
   sonarqube:
     name: SonarQube
@@ -14,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -32,4 +35,5 @@ jobs:
             -Dsonar.sources=. \
             -Dsonar.sourceEncoding=UTF-8 \
             -Dsonar.coverage.exclusions=**/* \
+            -Dsonar.exclusions="**/node_modules/**,scratch/**,**/*.js,**/*.mjs,.next/**" \
             -Dsonar.host.url=https://sonarcloud.io

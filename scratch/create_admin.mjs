@@ -1,7 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
 
-const supabaseUrl = 'https://lvxhporsajorgckeisna.supabase.co';
-const supabaseServiceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2eGhwb3JzYWpvcmdja2Vpc25hIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQyNTIzNSwiZXhwIjoyMDg5MDAxMjM1fQ.2jGgr7tocFeq1QSsLdzUZBQ3sA_PytrNhbBiJBEcPPg';
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+let supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || '';
+
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (fs.existsSync('.env')) {
+    const env = fs.readFileSync('.env', 'utf-8');
+    env.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) supabaseUrl = trimmed.split('=')[1].trim();
+      if (trimmed.startsWith('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=')) supabaseServiceRoleKey = trimmed.split('=')[1].trim();
+      if (trimmed.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) supabaseServiceRoleKey = trimmed.split('=')[1].trim();
+    });
+  }
+}
+
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  console.error('Error: NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no encontradas.');
+  process.exit(1);
+}
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
@@ -11,10 +29,16 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
 });
 
 async function main() {
-  const email = 'pepitoperez132604@gmail.com';
-  const password = '001199';
+  const email = process.env.ADMIN_EMAIL || process.argv[2];
+  const password = process.env.ADMIN_PASSWORD || process.argv[3];
 
-  console.log('Checking if user exists...');
+  if (!email || !password) {
+    console.error('Uso: node scratch/create_admin.mjs <email> <password>');
+    console.error('O defina las variables de entorno ADMIN_EMAIL y ADMIN_PASSWORD.');
+    process.exit(1);
+  }
+
+  console.log(`Checking if user ${email} exists...`);
   const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
   
   if (listError) {
