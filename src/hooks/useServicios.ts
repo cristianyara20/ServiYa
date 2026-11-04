@@ -20,7 +20,7 @@ export function useServicios() {
       }
     };
 
-    fetchServicios();
+    void fetchServicios();
   }, []);
 
   return { servicios, loading, error };

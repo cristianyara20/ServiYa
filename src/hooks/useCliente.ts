@@ -56,7 +56,7 @@ export function useCliente() {
       }
     };
 
-    fetchCliente();
+    void fetchCliente();
 
     return () => {
       isMounted = false;
