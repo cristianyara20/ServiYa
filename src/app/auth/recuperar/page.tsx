@@ -14,19 +14,25 @@ export default function RecuperarPage() {
         setLoading(true);
         setMensaje("");
 
-        // Apuntamos directo a actualizar-clave para evitar que se pierda la sesión
-        const targetURL = `${window.location.origin}/auth/actualizar-clave`;
+        try {
+            // Apuntamos directo a actualizar-clave para evitar que se pierda la sesión
+            const targetURL = `${window.location.origin}/auth/actualizar-clave`;
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: targetURL,
-        });
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: targetURL,
+            });
 
-        if (error) {
-            alert("Error: " + error.message);
-        } else {
-            setMensaje("📧 ¡Enviado! Revisa tu correo. RECUERDA: Copia y pega el link en una pestaña de incógnito.");
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                setMensaje("📧 ¡Enviado! Revisa tu correo. RECUERDA: Copia y pega el link en una pestaña de incógnito.");
+            }
+        } catch (err: any) {
+            console.error("Error al solicitar recuperación:", err);
+            alert("Error inesperado al solicitar recuperación.");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -65,6 +71,7 @@ export default function RecuperarPage() {
                             onChange={(e) => setEmail(e.target.value)}
                         />
                         <button
+                            type="submit"
                             disabled={loading}
                             className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-bold py-3 rounded-full transition-all text-xs uppercase tracking-widest shadow-lg shadow-orange-500/20"
                         >

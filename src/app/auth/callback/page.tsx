@@ -9,27 +9,34 @@ export default function Callback() {
 
   useEffect(() => {
     const handleAuth = async () => {
-      const supabase = createBrowserSupabaseClient();
-      const { data } = await supabase.auth.getSession();
+      try {
+        const supabase = createBrowserSupabaseClient();
+        const { data } = await supabase.auth.getSession();
 
-      const user = data.session?.user;
+        const user = data.session?.user;
 
-      if (user) {
-        // 🔥 insertar en tu tabla personalizada
-        await supabase.schema("seguridad").from("usuarios").upsert({
-          correo: user.email || "",
-          nombre: "Usuario",
-          apellido: "Nuevo",
-          fecha_nacimiento: "2000-01-01",
-          auth_id: user.id,
-        });
+        if (user) {
+          // 🔥 insertar en tu tabla personalizada
+          await supabase.schema("seguridad").from("usuarios").upsert({
+            correo: user.email || "",
+            nombre: "Usuario",
+            apellido: "Nuevo",
+            fecha_nacimiento: "2000-01-01",
+            auth_id: user.id,
+          });
 
-        router.push("/dashboard");
+          router.push("/dashboard");
+        } else {
+          router.push("/auth/login");
+        }
+      } catch (error) {
+        console.error("Error en callback de autenticación:", error);
+        router.push("/auth/login");
       }
     };
 
-    handleAuth();
-  }, []);
+    void handleAuth();
+  }, [router]);
 
   return <h2>Autenticando...</h2>;
 }

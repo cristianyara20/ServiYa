@@ -121,7 +121,7 @@ export default function ReportesPanel() {
   };
 
   useEffect(() => {
-    fetchReportes();
+    void fetchReportes();
   }, [mes, anio]);
 
   return (
@@ -156,7 +156,8 @@ export default function ReportesPanel() {
           </select>
           
           <button 
-            onClick={downloadPDF}
+            type="button"
+            onClick={() => { void downloadPDF(); }}
             className="bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 text-white rounded-xl px-4 py-2 font-bold transition-colors flex items-center gap-2 text-sm"
             title="Descargar Reporte en PDF"
           >
@@ -164,7 +165,8 @@ export default function ReportesPanel() {
           </button>
 
           <button 
-            onClick={fetchReportes}
+            type="button"
+            onClick={() => { void fetchReportes(); }}
             className="bg-orange-500 hover:bg-orange-400 text-white rounded-xl px-4 py-2 font-bold transition-colors flex items-center gap-2 text-sm"
           >
             <span>🔄</span> Refrescar
