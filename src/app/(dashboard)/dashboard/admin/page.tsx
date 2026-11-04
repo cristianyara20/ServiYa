@@ -166,7 +166,7 @@ export default function AdminPanel() {
         setIsPqrModalOpen(false);
         setPqrRespuesta('');
         setSelectedPqr(null);
-        fetchApiPqrs();
+        await fetchApiPqrs();
       } else {
         toast.error('Error al responder la PQR');
       }
@@ -218,24 +218,24 @@ export default function AdminPanel() {
   };
 
   useEffect(() => {
-    fetchUsers();
-    fetchApiPrestadores();
-    fetchApiHistorial();
-    fetchApiPqrs();
-    fetchApiReviews();
+    void fetchUsers();
+    void fetchApiPrestadores();
+    void fetchApiHistorial();
+    void fetchApiPqrs();
+    void fetchApiReviews();
   }, []);
 
   // Poll prestadores state to simulate real-time updates every 8 seconds
   useEffect(() => {
     if (activeTab === 'Gestión de Prestadores') {
-      const interval = setInterval(() => fetchApiPrestadores(true), 8000);
+      const interval = setInterval(() => { void fetchApiPrestadores(true); }, 8000);
       return () => clearInterval(interval);
     }
   }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === 'Historial de Servicios') {
-      fetchApiHistorial();
+      void fetchApiHistorial();
     }
   }, [activeTab]);
 
@@ -248,7 +248,7 @@ export default function AdminPanel() {
           toast.error(`Error: ${result.error}`, { id: loadingToast });
         } else {
           toast.success('Usuario eliminado', { id: loadingToast });
-          fetchUsers();
+          await fetchUsers();
         }
       } catch (err: any) {
         toast.error(`Error: ${err.message}`, { id: loadingToast });
@@ -264,7 +264,7 @@ export default function AdminPanel() {
         toast.error(res.error, { id: loadingToast });
       } else {
         toast.success('Reseña eliminada con éxito.', { id: loadingToast });
-        fetchApiReviews(); // Recarga la lista desde la API
+        await fetchApiReviews(); // Recarga la lista desde la API
       }
     }
   };
@@ -293,7 +293,7 @@ export default function AdminPanel() {
       setApellidoInput('');
       setFechaNacimientoInput('');
       setRolInput('usuario');
-      fetchUsers();
+      await fetchUsers();
     } catch (error: any) {
       toast.error(error.message, { id: loadingToast });
     }
@@ -329,7 +329,7 @@ export default function AdminPanel() {
         setApellidoInput('');
         setFechaNacimientoInput('');
         setRolInput('usuario');
-        fetchUsers();
+        await fetchUsers();
       }
     } catch (error: any) {
       toast.error(error.message, { id: loadingToast });
@@ -675,7 +675,8 @@ export default function AdminPanel() {
                            <span>✏️</span> Editar
                          </button>
                          <button 
-                           onClick={() => handleDelete(user.id, user.db_id)}
+                           type="button"
+                            onClick={() => { void handleDelete(user.id, user.db_id); }}
                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                          >
                            <span>🗑️</span> Eliminar
@@ -775,7 +776,8 @@ export default function AdminPanel() {
                          
                          <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity">
                            <button 
-                             onClick={() => handleDeleteReviewClick(rev.id_reserva)}
+                             type="button"
+                              onClick={() => { void handleDeleteReviewClick(rev.id_reserva); }}
                              className="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-full transition-colors"
                              title="Eliminar reseña"
                            >
@@ -845,7 +847,7 @@ export default function AdminPanel() {
                   <h2 className="text-xl font-bold flex items-center gap-2"><span>💬</span> Buzón de PQRs</h2>
                   <p className="text-neutral-500 text-sm mt-1">Gestión de Peticiones, Quejas y Reclamos — consultado mediante la API de Go</p>
                 </div>
-                <button onClick={() => fetchApiPqrs()} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                <button type="button" onClick={() => { void fetchApiPqrs(); }} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
                   🔄 Refrescar
                 </button>
              </div>
@@ -945,7 +947,7 @@ export default function AdminPanel() {
                   <h2 className="text-xl font-bold flex items-center gap-2"><span>🔧</span> Prestadores de Servicios</h2>
                   <p className="text-neutral-500 text-sm mt-1">Disponibilidad y estado en tiempo real consultado mediante la API de Go</p>
                 </div>
-                 <button onClick={() => fetchApiPrestadores(false)} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
+                 <button type="button" onClick={() => { void fetchApiPrestadores(false); }} className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-2">
                    🔄 Refrescar
                  </button>
              </div>
@@ -1016,7 +1018,7 @@ export default function AdminPanel() {
                   <h2 className="text-xl font-bold flex items-center gap-2"><span>📜</span> Historial Completo de Servicios</h2>
                   <p className="text-neutral-500 text-sm mt-1">Lista consolidada de todos los servicios solicitados y atendidos en la plataforma mediante la API de Go</p>
                 </div>
-                <button onClick={fetchApiHistorial} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
+                <button type="button" onClick={() => { void fetchApiHistorial(); }} className="bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer">
                   🔄 Refrescar
                 </button>
              </div>
@@ -1299,7 +1301,8 @@ export default function AdminPanel() {
                   Cancelar
                 </button>
                 <button
-                  onClick={handleResponderPqr}
+                  type="button"
+                  onClick={() => { void handleResponderPqr(); }}
                   disabled={pqrRespondiendo || !pqrRespuesta.trim()}
                   className="bg-orange-500 hover:bg-orange-400 text-white px-5 py-2.5 rounded-xl font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
