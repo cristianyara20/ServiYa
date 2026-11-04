@@ -10,13 +10,18 @@ export default function Home() {
 
   useEffect(() => {
     const getSession = async () => {
-      const supabase = createBrowserSupabaseClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
+      try {
+        const supabase = createBrowserSupabaseClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("Error al obtener la sesión:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    getSession();
+    void getSession();
 
     const supabase2 = createBrowserSupabaseClient();
     const { data: authListener } = supabase2.auth.onAuthStateChange((_event, session) => {
@@ -29,9 +34,13 @@ export default function Home() {
   }, []);
 
   const handleLogout = async () => {
-    const supabase = createBrowserSupabaseClient();
-    await supabase.auth.signOut();
-    window.location.href = "/"; // Redirigir al home limpio
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+      window.location.href = "/"; // Redirigir al home limpio
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   if (loading) return <p style={{ padding: "20px" }}>Cargando...</p>;
@@ -57,7 +66,7 @@ export default function Home() {
           ) : (
             <>
               <span style={{ marginRight: "10px" }}>👤 {user.email}</span>
-              <button onClick={handleLogout} style={{ marginRight: "10px", padding: "8px 15px", cursor: "pointer" }}>Cerrar Sesión</button>
+              <button onClick={() => { void handleLogout(); }} style={{ marginRight: "10px", padding: "8px 15px", cursor: "pointer" }}>Cerrar Sesión</button>
             </>
           )}
           <button style={{ background: "green", color: "white", marginRight: "10px", padding: "8px 15px", border: "none", borderRadius: "5px" }}>+57 300 123 4567</button>

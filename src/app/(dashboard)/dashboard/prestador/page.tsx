@@ -21,24 +21,30 @@ export default function PrestadorDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const user = await getPrestadorAuthUser();
-    if (user) {
-      const result = await getPrestadorDashboardData(user.id);
-      if (result.success) {
-        setData(result);
-      } else {
-        toast.error("Error al cargar datos: " + result.error);
+    try {
+      const user = await getPrestadorAuthUser();
+      if (user) {
+        const result = await getPrestadorDashboardData(user.id);
+        if (result.success) {
+          setData(result);
+        } else {
+          toast.error("Error al cargar datos: " + result.error);
+        }
       }
+    } catch (err) {
+      console.error("Error al cargar datos:", err);
+      toast.error("Error inesperado al cargar datos");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
 
     // Suscripción en tiempo real para la tabla de reservas (via Service)
     const unsubscribe = subscribeReservasChanges(() => {
-      fetchData();
+      void fetchData();
     });
 
     return () => {
@@ -83,7 +89,7 @@ export default function PrestadorDashboard() {
         }
       }
 
-      fetchData();
+      await fetchData();
     } else {
       toast.error("Error: " + result.error, { id: loadingToast });
     }
@@ -95,7 +101,7 @@ export default function PrestadorDashboard() {
     const result = await updatePrestadorAvailability(data.perfil.id_usuario, newStatus);
     if (result.success) {
       toast.success(`Ahora estás ${newStatus}`, { id: loadingToast });
-      fetchData();
+      await fetchData();
     } else {
       toast.error("Error: " + result.error, { id: loadingToast });
     }
@@ -150,7 +156,7 @@ export default function PrestadorDashboard() {
           {['disponible', 'ocupado', 'inactivo'].map((status) => (
             <button
               key={status}
-              onClick={() => handleAvailabilityToggle(status)}
+              onClick={() => { void handleAvailabilityToggle(status); }}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 data?.perfil?.disponibilidad === status
                   ? status === 'disponible' ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' 
@@ -285,11 +291,11 @@ export default function PrestadorDashboard() {
                           </div>
                         </div>
                         <div className="flex gap-3 w-full md:w-auto">
-                          <button onClick={() => handleStatusUpdate(res.id_reserva, 'aceptada', data?.perfil?.id_usuario)} 
+                          <button onClick={() => { void handleStatusUpdate(res.id_reserva, 'aceptada', data?.perfil?.id_usuario); }} 
                             className="flex-1 md:flex-none bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-colors cursor-pointer">
                             Aceptar
                           </button>
-                          <button onClick={() => handleStatusUpdate(res.id_reserva, 'rechazada')} 
+                          <button onClick={() => { void handleStatusUpdate(res.id_reserva, 'rechazada'); }} 
                             className="flex-1 md:flex-none bg-neutral-800 hover:bg-neutral-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-colors cursor-pointer">
                             Rechazar
                           </button>
@@ -333,7 +339,7 @@ export default function PrestadorDashboard() {
                             <p className="text-xs text-green-500 mt-1 font-bold italic">📅 Programado para: {new Date(res.fecha_agenda).toLocaleString()}</p>
                           </div>
                         </div>
-                        <button onClick={() => handleStatusUpdate(res.id_reserva, 'terminada')} 
+                        <button onClick={() => { void handleStatusUpdate(res.id_reserva, 'terminada'); }} 
                           className="w-full md:w-auto bg-orange-600 hover:bg-orange-500 text-white px-8 py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-orange-600/20 cursor-pointer">
                           Finalizar Servicio
                         </button>
