@@ -13,26 +13,37 @@ export default function ServiciosPage() {
   const [servicios, setServicios] = useState<any[]>([]);
 
   const getServicios = async () => {
-    const supabase = createBrowserSupabaseClient();
-    const { data } = await supabase
-      .schema("gestion")
-      .from("servicios")
-      .select("*");
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { data, error } = await supabase
+        .schema("gestion")
+        .from("servicios")
+        .select("*");
 
-    setServicios(data || []);
+      if (error) {
+        console.error("Error obteniendo servicios:", error);
+      } else {
+        setServicios(data || []);
+      }
+    } catch (err) {
+      console.error("Error inesperado al cargar servicios:", err);
+    }
   };
 
   useEffect(() => {
-    getServicios();
+    void getServicios();
   }, []);
 
-  const handleSubmit = async (e:any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const supabase = createBrowserSupabaseClient();
-    await supabase.schema("gestion").from("servicios").insert(form);
-
-    getServicios(); // refresca lista
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.schema("gestion").from("servicios").insert(form);
+      await getServicios(); // refresca lista
+    } catch (err) {
+      console.error("Error al registrar servicio:", err);
+    }
   };
 
   return (
@@ -43,7 +54,7 @@ export default function ServiciosPage() {
         <input placeholder="Nombre" onChange={(e)=>setForm({...form,nombre_servicio:e.target.value})}/>
         <input placeholder="Descripción" onChange={(e)=>setForm({...form,descripcion:e.target.value})}/>
         <input placeholder="Categoría" onChange={(e)=>setForm({...form,categoria:e.target.value})}/>
-        <button>Crear</button>
+        <button type="submit">Crear</button>
       </form>
 
       <ul>

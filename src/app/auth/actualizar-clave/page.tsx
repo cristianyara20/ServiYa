@@ -14,41 +14,52 @@ export default function ActualizarClavePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const init = async () => {
-      // Intentar capturar token del hash de la URL
-      const hash = window.location.hash;
-      if (hash && hash.includes("access_token")) {
-        const params = new URLSearchParams(hash.replace("#", ""));
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
-        if (access_token && refresh_token) {
-          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-          if (!error) {
-            setSesionLista(true);
-            return;
+    const init = async () => {
+      try {
+        // Intentar capturar token del hash de la URL
+        const hash = window.location.hash;
+        if (hash && hash.includes("access_token")) {
+          const params = new URLSearchParams(hash.replace("#", ""));
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (!error) {
+              setSesionLista(true);
+              return;
+            }
           }
         }
-      }
 
-      // Si no hay hash, verificar sesión existente
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setSesionLista(true);
-        return;
-      }
-
-      // Escuchar evento PASSWORD_RECOVERY
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+        // Si no hay hash, verificar sesión existente
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
           setSesionLista(true);
+          return;
         }
-      });
 
-      return () => subscription.unsubscribe();
+        // Escuchar evento PASSWORD_RECOVERY
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+            setSesionLista(true);
+          }
+        });
+        authSubscription = subscription;
+      } catch (err) {
+        console.error("Error al inicializar sesión de recuperación:", err);
+      }
     };
 
-    init();
+    void init();
+
+    return () => {
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
+    };
   }, []);
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -121,6 +132,7 @@ export default function ActualizarClavePage() {
         </div>
 
         <button
+          type="submit"
           disabled={loading || !sesionLista}
           className="w-full bg-orange-500 py-3 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-orange-400 disabled:opacity-50"
         >
